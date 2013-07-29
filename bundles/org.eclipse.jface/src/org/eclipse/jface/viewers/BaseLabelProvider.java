@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 412273
  *******************************************************************************/
 
 package org.eclipse.jface.viewers;
@@ -17,13 +18,14 @@ import org.eclipse.jface.util.SafeRunnable;
 /**
  * BaseLabelProvider is a default concrete implementation of
  * {@link IBaseLabelProvider} 
+ * @param <E> Type of an element of the model
  * 
  * @since 3.3
  * 
  */
-public class BaseLabelProvider extends EventManager implements IBaseLabelProvider {
+public class BaseLabelProvider<E> extends EventManager implements IBaseLabelProvider<E> {
 
-    @Override
+	@Override
 	public void addListener(ILabelProviderListener listener) {
         addListenerObject(listener);
     }
@@ -33,7 +35,7 @@ public class BaseLabelProvider extends EventManager implements IBaseLabelProvide
      * <code>IBaseLabelProvider</code> method clears its internal listener list.
      * Subclasses may extend but should call the super implementation.
      */
-    @Override
+	@Override
 	public void dispose() {
     	clearListeners();
     }
@@ -43,12 +45,12 @@ public class BaseLabelProvider extends EventManager implements IBaseLabelProvide
      * <code>IBaseLabelProvider</code> method returns <code>true</code>. Subclasses may 
      * override.
      */
-    @Override
-	public boolean isLabelProperty(Object element, String property) {
+	@Override
+	public boolean isLabelProperty(E element, String property) {
         return true;
     }
 
-    @Override
+	@Override
 	public void removeListener(ILabelProviderListener listener) {
         removeListenerObject(listener);
     }

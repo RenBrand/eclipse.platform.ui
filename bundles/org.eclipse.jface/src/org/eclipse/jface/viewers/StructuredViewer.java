@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Schindl - bug 151205
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 412273
  *******************************************************************************/
 package org.eclipse.jface.viewers;
 
@@ -52,11 +53,13 @@ import org.eclipse.swt.widgets.Widget;
  * <code>addFilter</code>). When the viewer receives an update, it asks each
  * of its filters if it is out of date, and refilters elements as required.
  * </p>
+ * @param <E> Type of an single element of the model
+ * @param <I> Type of the input
  * 
  * @see ViewerFilter
  * @see ViewerComparator
  */
-public abstract class StructuredViewer extends ContentViewer implements IPostSelectionProvider {
+public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implements IPostSelectionProvider {
 
 	/**
 	 * A map from the viewer's model elements to SWT widgets. (key type:
@@ -81,7 +84,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * This viewer's filters (element type: <code>ViewerFilter</code>).
 	 * <code>null</code> means there are no filters.
 	 */
-	private List filters;
+	private List<ViewerFilter> filters;
 
 	/**
 	 * Indicates whether the viewer should attempt to preserve the selection
@@ -174,7 +177,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		 * @see IColorProvider
 		 * @see IFontProvider
 		 */
-		public ColorAndFontCollectorWithProviders(IBaseLabelProvider provider) {
+		public ColorAndFontCollectorWithProviders(IBaseLabelProvider<E> provider) {
 			super();
 			if (provider instanceof IColorProvider) {
 				colorProvider = (IColorProvider) provider;
@@ -271,6 +274,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		}
 
 		@Override
+		@Deprecated
 		public void applyFontsAndColors(TableTreeItem control) {
 			
 			if(colorProvider == null){
@@ -408,6 +412,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		 * required.
 		 * @param control
 		 */
+		@Deprecated
 		public void applyFontsAndColors(TableTreeItem control) {
 			if(usedDecorators){
 				//If there is no provider only apply set values
@@ -457,11 +462,11 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	class UpdateItemSafeRunnable extends SafeRunnable {
 		private Widget widget;
 
-		private Object element;
+		private E element;
 
 		private boolean fullMap;
 
-		UpdateItemSafeRunnable(Widget widget, Object element, boolean fullMap) {
+		UpdateItemSafeRunnable(Widget widget, E element, boolean fullMap) {
 			this.widget = widget;
 			this.element = element;
 			this.fullMap = fullMap;
@@ -565,7 +570,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 */
 	public void addFilter(ViewerFilter filter) {
 		if (filters == null) {
-			filters = new ArrayList();
+			filters = new ArrayList<ViewerFilter>();
 		}
 		filters.add(filter);
 		refresh();
@@ -612,8 +617,8 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param item
 	 *            the widget
 	 */
-	protected void associate(Object element, Item item) {
-		Object data = item.getData();
+	protected void associate(E element, Item item) {
+		E data = (E) item.getData();
 		if (data != element) {
 			if (data != null) {
 				disassociate(item);
@@ -642,7 +647,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	protected void disassociate(Item item) {
 		if (associateListener != null)
 			associateListener.disassociate(item);
-		Object element = item.getData();
+		E element = (E) item.getData();
 		Assert.isNotNull(element);
 		//Clear the map before we clear the data
 		unmapElement(element, item);
@@ -660,7 +665,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element
 	 * @return the corresponding widget, or <code>null</code> if none
 	 */
-	protected abstract Widget doFindInputItem(Object element);
+	protected abstract Widget doFindInputItem(E element);
 
 	/**
 	 * Returns the widget in this viewer's control which represent the given
@@ -673,7 +678,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element
 	 * @return the corresponding widget, or <code>null</code> if none
 	 */
-	protected abstract Widget doFindItem(Object element);
+	protected abstract Widget doFindItem(E element);
 
 	/**
 	 * Copies the attributes of the given element into the given SWT item. The
@@ -694,7 +699,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            <code>true</code> if mappings are added and removed, and
 	 *            <code>false</code> if only the new map gets installed
 	 */
-	protected abstract void doUpdateItem(Widget item, Object element, boolean fullMap);
+	protected abstract void doUpdateItem(Widget item, E element, boolean fullMap);
 
 	/**
 	 * Compares two elements for equality. Uses the element comparer if one has
@@ -722,14 +727,14 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the elements to filter
 	 * @return only the elements which all filters accept
 	 */
-	protected Object[] filter(Object[] elements) {
+	protected E[] filter(E[] elements) {
 		if (filters != null) {
-			ArrayList filtered = new ArrayList(elements.length);
-			Object root = getRoot();
+			ArrayList<E> filtered = new ArrayList<E>(elements.length);
+			I root = getRoot();
 			for (int i = 0; i < elements.length; i++) {
 				boolean add = true;
 				for (int j = 0; j < filters.size(); j++) {
-					add = ((ViewerFilter) filters.get(j)).select(this, root, elements[i]);
+					add = filters.get(j).select(this, root, elements[i]);
 					if (!add) {
 						break;
 					}
@@ -741,7 +746,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 						associateListener.filteredOut(elements[i]);
 				}
 			}
-			return filtered.toArray();
+			return (E[]) filtered.toArray();
 		}
 		return elements;
 	}
@@ -761,7 +766,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the element
 	 * @return the corresponding widget, or <code>null</code> if none
 	 */
-	protected final Widget findItem(Object element) {
+	protected final Widget findItem(E element) {
 		Widget[] result = findItems(element);
 		return result.length == 0 ? null : result[0];
 	}
@@ -791,7 +796,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * 
 	 * @since 3.2
 	 */
-	protected final Widget[] findItems(Object element) {
+	protected final Widget[] findItems(E element) {
 		Widget result = doFindInputItem(element);
 		if (result != null) {
 			return new Widget[] { result };
@@ -901,12 +906,12 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the parent element
 	 * @return a filtered array of child elements
 	 */
-	protected Object[] getFilteredChildren(Object parent) {
-		Object[] result = getRawChildren(parent);
+	protected E[] getFilteredChildren(I parent) {
+		E[] result = getRawChildren(parent);
 		if (filters != null) {
-			for (Iterator iter = filters.iterator(); iter.hasNext();) {
-				ViewerFilter f = (ViewerFilter) iter.next();
-				Object[] filteredResult = f.filter(this, parent, result);
+			for (Iterator<ViewerFilter> iter = filters.iterator(); iter.hasNext();) {
+				ViewerFilter f = iter.next();
+				E[] filteredResult = (E[]) f.filter(this, parent, result);
 				if (associateListener != null && filteredResult.length != result.length) {
 					notifyFilteredOut(result, filteredResult);
 				}
@@ -922,7 +927,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param rawResult 
 	 * @param filteredResult  
 	 */
-	private void notifyFilteredOut(Object[] rawResult, Object[] filteredResult) {
+	private void notifyFilteredOut(E[] rawResult, E[] filteredResult) {
 		int rawIndex = 0;
 		int filteredIndex = 0;
 		for (; filteredIndex < filteredResult.length; ) {
@@ -991,16 +996,23 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the parent element
 	 * @return the child elements
 	 */
-	protected Object[] getRawChildren(Object parent) {
-		Object[] result = null;
+	protected E[] getRawChildren(I parent) {
+		E[] result = null;
 		if (parent != null) {
-			IStructuredContentProvider cp = (IStructuredContentProvider) getContentProvider();
+			IStructuredContentProvider<E,I> cp = (IStructuredContentProvider<E,I>) getContentProvider();
 			if (cp != null) {
 				result = cp.getElements(parent);
 				assertElementsNotNull(result);
 			}
 		}
-		return (result != null) ? result : new Object[0];
+		
+		if(result == null){
+			@SuppressWarnings("unchecked")
+			E[] emptyResult = (E[]) new Object[0];
+			result = emptyResult;
+		}
+		
+		return result;
 	}
 
 	/**
@@ -1013,7 +1025,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * 
 	 * @return the root element, or <code>null</code> if none
 	 */
-	protected Object getRoot() {
+	protected I getRoot() {
 		return getInput();
 	}
 
@@ -1032,7 +1044,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		if (control == null || control.isDisposed()) {
 			return StructuredSelection.EMPTY;
 		}
-		List list = getSelectionFromWidget();
+		List<E> list = getSelectionFromWidget();
 		return new StructuredSelection(list, comparer);
 	}
 
@@ -1042,7 +1054,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * 
 	 * @return the list of selected elements
 	 */
-	protected abstract List getSelectionFromWidget();
+	protected abstract List<E> getSelectionFromWidget();
 
 	/**
 	 * Returns the sorted and filtered set of children of the given element. The
@@ -1053,8 +1065,8 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the parent element
 	 * @return a sorted and filtered array of child elements
 	 */
-	protected Object[] getSortedChildren(Object parent) {
-		Object[] result = getFilteredChildren(parent);
+	protected E[] getSortedChildren(I parent) {
+		E[] result = getFilteredChildren(parent);
 		if (sorter != null) {
 			// be sure we're not modifying the original array from the model
 			result = result.clone();
@@ -1177,7 +1189,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 */
 	@Override
 	protected void handleLabelProviderChanged(LabelProviderChangedEvent event) {
-		Object[] elements = event.getElements();
+		E[] elements = (E[])event.getElements();
 		if (elements != null) {
 			update(elements, null);
 		} else {
@@ -1304,7 +1316,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param item
 	 *            the corresponding widget
 	 */
-	protected void mapElement(Object element, Widget item) {
+	protected void mapElement(E element, Widget item) {
 		if (elementMap != null) {
 			Object widgetOrWidgets = elementMap.get(element);
 			if (widgetOrWidgets == null) {
@@ -1350,7 +1362,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 
 		if (filters != null) {
 			for (int i = 0, n = filters.size(); i < n; ++i) {
-				ViewerFilter filter = (ViewerFilter) filters.get(i);
+				ViewerFilter filter = filters.get(i);
 				if (filter.isFilterProperty(element, property)) {
 					return true;
 				}
@@ -1543,7 +1555,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element
      *            the element
 	 */
-	protected final void refreshItem(Widget widget, Object element) {
+	protected final void refreshItem(Widget widget, E element) {
 		SafeRunnable.run(new UpdateItemSafeRunnable(widget, element, true));
 	}
 
@@ -1589,8 +1601,8 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		if (filters != null) {
 			// Note: can't use List.remove(Object). Use identity comparison
 			// instead.
-			for (Iterator i = filters.iterator(); i.hasNext();) {
-				Object o = i.next();
+			for (Iterator<ViewerFilter> i = filters.iterator(); i.hasNext();) {
+				ViewerFilter o = i.next();
 				if (o == filter) {
 					i.remove();
 					refresh();
@@ -1619,7 +1631,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		if (filters.length == 0) {
 			resetFilters();
 		} else {
-			this.filters = new ArrayList(Arrays.asList(filters));
+			this.filters = new ArrayList<ViewerFilter>(Arrays.asList(filters));
 			refresh();
 		}
 	}
@@ -1645,7 +1657,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	public abstract void reveal(Object element);
 
 	@Override
-	public void setContentProvider(IContentProvider provider) {
+	public void setContentProvider(IContentProvider<I> provider) {
 		assertContentProviderType(provider);
 		super.setContentProvider(provider);
 	}
@@ -1655,12 +1667,12 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * supported types.
 	 * @param provider
 	 */
-	protected void assertContentProviderType(IContentProvider provider) {
+	protected void assertContentProviderType(IContentProvider<I> provider) {
 		Assert.isTrue(provider instanceof IStructuredContentProvider);
 	}
 
 	@Override
-	public final void setInput(Object input) {
+	public final void setInput(I input) {
 		Control control = getControl();
 		if (control == null || control.isDisposed()) {
 			throw new IllegalStateException(
@@ -1721,13 +1733,13 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * </p>
 	 * 
 	 * @param l
-	 *            list of selected elements (element type: <code>Object</code>)
+	 *            list of selected elements
 	 *            or <code>null</code> if the selection is to be cleared
 	 * @param reveal
 	 *            <code>true</code> if the selection is to be made visible,
 	 *            and <code>false</code> otherwise
 	 */
-	protected abstract void setSelectionToWidget(List l, boolean reveal);
+	protected abstract void setSelectionToWidget(List<E> l, boolean reveal);
 
 	/**
 	 * Converts the selection to a <code>List</code> and calls
@@ -1748,7 +1760,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		if (selection instanceof IStructuredSelection) {
 			setSelectionToWidget(((IStructuredSelection) selection).toList(), reveal);
 		} else {
-			setSelectionToWidget((List) null, reveal);
+			setSelectionToWidget((List<E>) null, reveal);
 		}
 	}
 
@@ -1868,7 +1880,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element
 	 * @return Widget
 	 */
-	public Widget testFindItem(Object element) {
+	public Widget testFindItem(E element) {
 		return findItem(element);
 	}
 
@@ -1878,7 +1890,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @return Widget[]
 	 * @since 3.2
 	 */
-	public Widget[] testFindItems(Object element) {
+	public Widget[] testFindItems(E element) {
 		return findItems(element);
 	}
 	
@@ -1927,7 +1939,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param item the item to unmap
 	 * @since 2.0
 	 */
-	protected void unmapElement(Object element, Widget item) {
+	protected void unmapElement(E element, Widget item) {
 		// double-check that the element actually maps to the given item before
 		// unmapping it
 		if (elementMap != null) {
@@ -2007,7 +2019,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the properties that have changed, or <code>null</code> to
 	 *            indicate unknown
 	 */
-	public void update(Object[] elements, String[] properties) {
+	public void update(E[] elements, String[] properties) {
 		boolean previousValue = refreshOccurred;
 		refreshOccurred = false;
 		try {
@@ -2062,7 +2074,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 *            the properties that have changed, or <code>null</code> to
 	 *            indicate unknown
 	 */
-	public void update(Object element, String[] properties) {
+	public void update(E element, String[] properties) {
 		Assert.isNotNull(element);
 		Widget[] items = findItems(element);
 
@@ -2095,7 +2107,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
      *            the properties that have changed, or <code>null</code> to
      *            indicate unknown
      */
-	protected void internalUpdate(Widget widget, Object element, String[] properties) {
+	protected void internalUpdate(Widget widget, E element, String[] properties) {
 		boolean needsRefilter = false;
 		if (properties != null) {
 			for (int i = 0; i < properties.length; ++i) {
@@ -2121,7 +2133,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 			needsUpdate = true;
 		} else {
 			needsUpdate = false;
-			IBaseLabelProvider labelProvider = getLabelProvider();
+			IBaseLabelProvider<E> labelProvider = getLabelProvider();
 			for (int i = 0; i < properties.length; ++i) {
 				needsUpdate = labelProvider.isLabelProperty(element, properties[i]);
 				if (needsUpdate) {
@@ -2146,7 +2158,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element
 	 *            the element
 	 */
-	protected final void updateItem(Widget widget, Object element) {
+	protected final void updateItem(Widget widget, E element) {
 		SafeRunnable.run(new UpdateItemSafeRunnable(widget, element, true));
 	}
 
@@ -2187,7 +2199,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	}
 
 	@Override
-	public void setLabelProvider(IBaseLabelProvider labelProvider) {
+	public void setLabelProvider(IBaseLabelProvider<E> labelProvider) {
 		if (labelProvider instanceof IColorProvider || labelProvider instanceof IFontProvider) {
 			colorAndFontCollector = new ColorAndFontCollectorWithProviders(labelProvider);
 		} else {
@@ -2202,7 +2214,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param updateLabel The ViewerLabel to collect the result in
 	 * @param element The element being decorated.
 	 */
-	protected void buildLabel(ViewerLabel updateLabel, Object element){
+	protected void buildLabel(ViewerLabel updateLabel, E element){
 
 		if (getLabelProvider() instanceof IViewerLabelProvider) {
 			IViewerLabelProvider itemProvider = (IViewerLabelProvider) getLabelProvider();
@@ -2226,7 +2238,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 		} 
 		
 		if(getLabelProvider() instanceof ILabelProvider){
-			ILabelProvider labelProvider = (ILabelProvider) getLabelProvider();
+			ILabelProvider<E> labelProvider = (ILabelProvider<E>) getLabelProvider();
 			updateLabel.setText(labelProvider.getText(element));
 			updateLabel.setImage(labelProvider.getImage(element));
 		}
@@ -2239,7 +2251,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element The element being decorated.
 	 * @param labelProvider ILabelProvider the labelProvider for the receiver.
 	 */
-	void buildLabel(ViewerLabel updateLabel, Object element,IViewerLabelProvider labelProvider){
+	void buildLabel(ViewerLabel updateLabel, E element,IViewerLabelProvider labelProvider){
 
 			labelProvider.updateLabel(updateLabel, element);
             		
@@ -2291,7 +2303,7 @@ public abstract class StructuredViewer extends ContentViewer implements IPostSel
 	 * @param element The element being decorated.
 	 * @param labelProvider ILabelProvider the labelProvider for the receiver.
 	 */
-	void buildLabel(ViewerLabel updateLabel, Object element,ILabelProvider labelProvider){
+	void buildLabel(ViewerLabel updateLabel, E element,ILabelProvider<E> labelProvider){
 			updateLabel.setText(labelProvider.getText(element));
 			updateLabel.setImage(labelProvider.getImage(element));
 	}
