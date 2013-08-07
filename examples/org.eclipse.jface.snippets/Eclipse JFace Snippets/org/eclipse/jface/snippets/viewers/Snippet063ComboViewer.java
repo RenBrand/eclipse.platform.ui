@@ -54,9 +54,9 @@ public class Snippet063ComboViewer {
 
 		final Label l = new Label(shell, SWT.None);
 		l.setText("Choose Item:");
-		final ComboViewer v = new ComboViewer(shell);
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		final ComboViewer<MyModel,List<MyModel>> v = new ComboViewer<MyModel,List<MyModel>>(shell);
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 
 		List<MyModel> model = createModel();
 		v.setInput(model);
