@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Schindl - bug 151205
- *     Hendrik Still <hendrik.still@gammas.de> - bug 412273
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 412273, bug 413973
  *******************************************************************************/
 package org.eclipse.jface.viewers;
 
@@ -66,7 +66,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * <code>Object</code>, value type: <code>Widget</code>, or <code>Widget[]</code>).
 	 * <code>null</code> means that the element map is disabled.
 	 */
-	private CustomHashtable elementMap;
+	private CustomHashtable<Object,Object> elementMap;
 
 	/**
 	 * The comparer to use for comparing elements, or <code>null</code> to use
@@ -165,9 +165,9 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 */
 	protected class ColorAndFontCollectorWithProviders extends ColorAndFontCollector{
 
-		IColorProvider colorProvider;
+		IColorProvider<E> colorProvider;
 
-		IFontProvider fontProvider;
+		IFontProvider<E> fontProvider;
 		
 		/**
 		 * Create a new instance of the receiver using the supplied
@@ -180,15 +180,19 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 		public ColorAndFontCollectorWithProviders(IBaseLabelProvider<E> provider) {
 			super();
 			if (provider instanceof IColorProvider) {
-				colorProvider = (IColorProvider) provider;
+				@SuppressWarnings("unchecked")
+				IColorProvider<E> setColorProvider = (IColorProvider<E>) provider;
+				colorProvider = setColorProvider;
 			}
 			if (provider instanceof IFontProvider) {
-				fontProvider = (IFontProvider) provider;
+				@SuppressWarnings("unchecked")
+				IFontProvider<E> setFontProvider = (IFontProvider<E>) provider;
+				fontProvider = setFontProvider;
 			}
 		}
 
 		@Override
-		public void setFontsAndColors(Object element){
+		public void setFontsAndColors(E element){
 			
 			if(fontProvider != null){
 				if(font == null) {
@@ -349,7 +353,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 		 * content providers.
 		 * @param element Object
 		 */
-		public void setFontsAndColors(Object element){
+		public void setFontsAndColors(E element){
 			//Do nothing if there are no providers
 		}
 
@@ -591,7 +595,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 		
 		if (InternalPolicy.DEBUG_LOG_EQUAL_VIEWER_ELEMENTS
 				&& elements.length > 1) {
-			CustomHashtable elementSet = newHashtable(elements.length * 2);
+			CustomHashtable<Object,Object> elementSet = newHashtable(elements.length * 2);
 			for (int i = 0; i < elements.length; i++) {
 				Object element = elements[i];
 				Object old = elementSet.put(element, element);
@@ -618,6 +622,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 *            the widget
 	 */
 	protected void associate(E element, Item item) {
+		@SuppressWarnings("unchecked")
 		E data = (E) item.getData();
 		if (data != element) {
 			if (data != null) {
@@ -647,6 +652,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	protected void disassociate(Item item) {
 		if (associateListener != null)
 			associateListener.disassociate(item);
+		@SuppressWarnings("unchecked")
 		E element = (E) item.getData();
 		Assert.isNotNull(element);
 		//Clear the map before we clear the data
@@ -715,9 +721,8 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	protected boolean equals(Object elementA, Object elementB) {
 		if (comparer == null) {
 			return elementA == null ? elementB == null : elementA.equals(elementB);
-		} else {
-			return elementA == null ? elementB == null : comparer.equals(elementA, elementB);
 		}
+			return elementA == null ? elementB == null : comparer.equals(elementA, elementB);
 	}
 
 	/**
@@ -746,7 +751,9 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 						associateListener.filteredOut(elements[i]);
 				}
 			}
-			return (E[]) filtered.toArray();
+			@SuppressWarnings("unchecked")
+			E[] result = (E[]) filtered.toArray();
+			return result;
 		}
 		return elements;
 	}
@@ -906,7 +913,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 *            the parent element
 	 * @return a filtered array of child elements
 	 */
-	protected E[] getFilteredChildren(I parent) {
+	protected E[] getFilteredChildren(Object parent) {
 		E[] result = getRawChildren(parent);
 		if (filters != null) {
 			for (Iterator<ViewerFilter<E,I>> iter = filters.iterator(); iter.hasNext();) {
@@ -950,12 +957,12 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * @return an array of viewer filters
 	 * @see StructuredViewer#setFilters(ViewerFilter[])
 	 */
-	public ViewerFilter[] getFilters() {
+	public ViewerFilter<E,I>[] getFilters() {
 		if (filters == null) {
 			return new ViewerFilter[0];
 		}
-		ViewerFilter[] result = new ViewerFilter[filters.size()];
-		filters.toArray(result);
+		ViewerFilter<E,I>[] result = new ViewerFilter[filters.size()];
+		result = filters.toArray(result);
 		return result;
 	}
 
@@ -996,12 +1003,15 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 *            the parent element
 	 * @return the child elements
 	 */
-	protected E[] getRawChildren(I parent) {
+	protected E[] getRawChildren(Object parent) {
 		E[] result = null;
 		if (parent != null) {
+			@SuppressWarnings("unchecked")
 			IStructuredContentProvider<E,I> cp = (IStructuredContentProvider<E,I>) getContentProvider();
 			if (cp != null) {
-				result = cp.getElements(parent);
+				@SuppressWarnings("unchecked")
+				I input = (I) parent;
+				result = cp.getElements(input);
 				assertElementsNotNull(result);
 			}
 		}
@@ -1065,7 +1075,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 *            the parent element
 	 * @return a sorted and filtered array of child elements
 	 */
-	protected E[] getSortedChildren(I parent) {
+	protected E[] getSortedChildren(Object parent) {
 		E[] result = getFilteredChildren(parent);
 		if (sorter != null) {
 			// be sure we're not modifying the original array from the model
@@ -1189,6 +1199,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 */
 	@Override
 	protected void handleLabelProviderChanged(LabelProviderChangedEvent event) {
+		@SuppressWarnings("unchecked")
 		E[] elements = (E[])event.getElements();
 		if (elements != null) {
 			update(elements, null);
@@ -1379,8 +1390,8 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * 
 	 * @since 3.0
 	 */
-	CustomHashtable newHashtable(int capacity) {
-		return new CustomHashtable(capacity, getComparer());
+	<K,V> CustomHashtable<K,V> newHashtable(int capacity) {
+		return new CustomHashtable<K,V>(capacity, getComparer());
 	}
 
 	/**
@@ -1758,7 +1769,9 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 */
 	protected void setSelectionToWidget(ISelection selection, boolean reveal) {
 		if (selection instanceof IStructuredSelection) {
-			setSelectionToWidget(((IStructuredSelection) selection).toList(), reveal);
+			@SuppressWarnings("unchecked")
+			List<E> selectedElements = ((IStructuredSelection) selection).toList();
+			setSelectionToWidget(selectedElements, reveal);
 		} else {
 			setSelectionToWidget((List<E>) null, reveal);
 		}
@@ -1774,6 +1787,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * @param sorter
 	 *            a viewer sorter, or <code>null</code> if none
 	 */
+	@SuppressWarnings("unchecked")
 	public void setSorter(ViewerSorter sorter) {
 		if (this.sorter != sorter) {
 			this.sorter = sorter;
@@ -1834,7 +1848,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	public void setComparer(IElementComparer comparer) {
 		this.comparer = comparer;
 		if (elementMap != null) {
-			elementMap = new CustomHashtable(elementMap, comparer);
+			elementMap = new CustomHashtable<Object,Object>(elementMap, comparer);
 		}
 	}
 
@@ -2217,7 +2231,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	protected void buildLabel(ViewerLabel updateLabel, E element){
 
 		if (getLabelProvider() instanceof IViewerLabelProvider) {
-			IViewerLabelProvider itemProvider = (IViewerLabelProvider) getLabelProvider();
+			IViewerLabelProvider<E> itemProvider = (IViewerLabelProvider<E>) getLabelProvider();
 			itemProvider.updateLabel(updateLabel, element);
             		
 			colorAndFontCollector.setUsedDecorators();
@@ -2251,7 +2265,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * @param element The element being decorated.
 	 * @param labelProvider ILabelProvider the labelProvider for the receiver.
 	 */
-	void buildLabel(ViewerLabel updateLabel, E element,IViewerLabelProvider labelProvider){
+	void buildLabel(ViewerLabel updateLabel, E element,IViewerLabelProvider<E> labelProvider){
 
 			labelProvider.updateLabel(updateLabel, element);
             		
@@ -2277,7 +2291,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * @param elementPath The path of the element being decorated.
 	 * @param labelProvider ILabelProvider the labelProvider for the receiver.
 	 */
-	void buildLabel(ViewerLabel updateLabel, TreePath elementPath,ITreePathLabelProvider labelProvider){
+	void buildLabel(ViewerLabel updateLabel, TreePath<E> elementPath,ITreePathLabelProvider<E> labelProvider){
 
 			labelProvider.updateLabel(updateLabel, elementPath);
             		
