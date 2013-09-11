@@ -30,9 +30,9 @@ public class Bug256889TableViewerTest extends ViewerTestCase {
 
 	private int rowcounter = 0;
 
-	private List model = new ArrayList();
+	private List<String> model = new ArrayList<String>();
 	private Table table;
-	private TableViewer tableViewer;
+	private TableViewer<String, List<String>> tableViewer;
 
 	/**
 	 * @param name
@@ -42,41 +42,52 @@ public class Bug256889TableViewerTest extends ViewerTestCase {
 		initModel();
 	}
 
+	@Override
 	protected StructuredViewer createViewer(Composite parent) {
-		tableViewer = new TableViewer(parent, SWT.VIRTUAL | SWT.BORDER
-				| SWT.MULTI);
-		tableViewer.setContentProvider(new ILazyContentProvider() {
+		tableViewer = new TableViewer<String, List<String>>(parent, SWT.VIRTUAL
+				| SWT.BORDER | SWT.MULTI);
+		tableViewer
+				.setContentProvider(new ILazyContentProvider<List<String>>() {
 
-			public void updateElement(int index) {
-				if (index >= 0 && index < tableViewer.getTable().getItemCount()) {
-					if (index > getModel().size() - PREFETCH_TRESHOLD
-							&& (getModel().size() < MAX_ENTRIES)) {
-						// simulate loading the next page of data from db
-						int approxRecordCount = addElementsToModel();
+					@Override
+					public void updateElement(int index) {
+						if (index >= 0
+								&& index < tableViewer.getTable()
+										.getItemCount()) {
+							if (index > getModel().size() - PREFETCH_TRESHOLD
+									&& (getModel().size() < MAX_ENTRIES)) {
+								// simulate loading the next page of data from
+								// db
+								int approxRecordCount = addElementsToModel();
 
-						System.out.println("approx. record count: "
-								+ approxRecordCount);
-						tableViewer.setItemCount(approxRecordCount);
+								System.out.println("approx. record count: "
+										+ approxRecordCount);
+								tableViewer.setItemCount(approxRecordCount);
+							}
+							if (index < getModel().size()) {
+								tableViewer.replace(getModel().get(index),
+										index);
+							} else {
+								System.out.println("invalid index " + index
+										+ " model count " + getModel().size());
+							}
+						} else {
+							System.out.println("invalid index " + index
+									+ " tableItemCount "
+									+ tableViewer.getTable().getItemCount());
+						}
 					}
-					if (index < getModel().size()) {
-						tableViewer.replace(getModel().get(index), index);
-					} else {
-						System.out.println("invalid index " + index
-								+ " model count " + getModel().size());
+
+					@Override
+					public void dispose() {
 					}
-				} else {
-					System.out.println("invalid index " + index
-							+ " tableItemCount "
-							+ tableViewer.getTable().getItemCount());
-				}
-			}
 
-			public void dispose() {
-			}
-
-			public void inputChanged(Viewer arg0, Object arg1, Object arg2) {
-			}
-		});
+					@Override
+					public void inputChanged(
+							Viewer<? extends List<String>> arg0,
+							List<String> arg1, List<String> arg2) {
+					}
+				});
 
 		String[] columnProperties = new String[] { "Spalte 1",
 				"Virtual Tables rock" };
@@ -105,6 +116,7 @@ public class Bug256889TableViewerTest extends ViewerTestCase {
 	 * 
 	 * @see org.eclipse.jface.tests.viewers.ViewerTestCase#setInput()
 	 */
+	@Override
 	protected void setInput() {
 		tableViewer.setInput(getModel());
 		tableViewer.setItemCount(getModel().size());
@@ -146,7 +158,7 @@ public class Bug256889TableViewerTest extends ViewerTestCase {
 		return approxRecordCount;
 	}
 
-	private List getModel() {
+	private List<String> getModel() {
 		return this.model;
 	}
 

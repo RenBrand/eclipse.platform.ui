@@ -29,81 +29,98 @@ import org.eclipse.swt.widgets.TreeColumn;
  */
 public class Bug200558Test extends ViewerTestCase {
 
+	private TreeViewer<Object, Object> treeViewer;
+
 	/**
 	 * @param name
 	 */
 	public Bug200558Test(String name) {
 		super(name);
-		// TODO Auto-generated constructor stub
 	}
 
+	@Override
 	protected StructuredViewer createViewer(Composite parent) {
-		final TreeViewer treeViewer = new TreeViewer(parent, SWT.FULL_SELECTION);
-		treeViewer.setContentProvider(new ITreeContentProvider() {
+		treeViewer = new TreeViewer<Object, Object>(parent, SWT.FULL_SELECTION);
+		treeViewer
+				.setContentProvider(new ITreeContentProvider<Object, Object>() {
 
-			public void dispose() {
-			}
+					@Override
+					public void dispose() {
+					}
 
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
-			}
+					@Override
+					public void inputChanged(Viewer<? extends Object> viewer,
+							Object oldInput, Object newInput) {
+					}
 
-			public Object[] getElements(Object inputElement) {
-				return new Object[] { "item" };
-			}
+					@Override
+					public Object[] getElements(Object inputElement) {
+						return new Object[] { "item" };
+					}
 
-			public Object[] getChildren(Object parentElement) {
-				return null;
-			}
+					@Override
+					public Object[] getChildren(Object parentElement) {
+						return null;
+					}
 
-			public Object getParent(Object element) {
-				return null;
-			}
+					@Override
+					public Object getParent(Object element) {
+						return null;
+					}
 
-			public boolean hasChildren(Object element) {
-				return false;
-			}
+					@Override
+					public boolean hasChildren(Object element) {
+						return false;
+					}
 
-		});
+				});
 		treeViewer.setCellEditors(new CellEditor[] { new TextCellEditor(
 				treeViewer.getTree()) });
 		treeViewer.setColumnProperties(new String[] { "0" });
 		treeViewer.setCellModifier(new ICellModifier() {
+			@Override
 			public boolean canModify(Object element, String property) {
 				return true;
 			}
 
+			@Override
 			public Object getValue(Object element, String property) {
 				return "Test";
 			}
 
+			@Override
 			public void modify(Object element, String property, Object value) {
 			}
 
 		});
 
-	    new TreeColumn(treeViewer.getTree(), SWT.NONE);
-	    new TreeColumn(treeViewer.getTree(), SWT.NONE).setWidth(100);
+		new TreeColumn(treeViewer.getTree(), SWT.NONE);
+		new TreeColumn(treeViewer.getTree(), SWT.NONE).setWidth(100);
 
 		return treeViewer;
 	}
 
+	@Override
 	protected void setUpModel() {
 		// don't do anything here - we are not using the normal fModel and
 		// fRootElement
 	}
 
+	@Override
 	protected void setInput() {
 		getTreeViewer().setInput(new Object());
 		getTreeViewer().getTree().getColumn(0).dispose();
 	}
 
-	private TreeViewer getTreeViewer() {
-		return (TreeViewer) fViewer;
+	private TreeViewer<Object, Object> getTreeViewer() {
+		return treeViewer;
 	}
 
 	public void testBug200558() {
-		getTreeViewer().editElement(getTreeViewer().getTree().getItem(0).getData(), 0);
-		assertEquals("Test", ((Text)getTreeViewer().getCellEditors()[0].getControl()).getText());
+		getTreeViewer().editElement(
+				getTreeViewer().getTree().getItem(0).getData(), 0);
+		assertEquals("Test",
+				((Text) getTreeViewer().getCellEditors()[0].getControl())
+						.getText());
 	}
 }

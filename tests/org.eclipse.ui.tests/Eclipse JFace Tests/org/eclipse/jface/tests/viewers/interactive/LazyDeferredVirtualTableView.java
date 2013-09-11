@@ -32,8 +32,8 @@ public class LazyDeferredVirtualTableView extends VirtualTableView {
 	}
 
 	@Override
-	protected IContentProvider getContentProvider() {
-		return new ILazyContentProvider() {
+	protected IContentProvider<Object> getContentProvider() {
+		return new ILazyContentProvider<Object>() {
 
 			int rangeStart = -1;
 
@@ -110,9 +110,10 @@ public class LazyDeferredVirtualTableView extends VirtualTableView {
 			}
 
 			@Override
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
-				// Do nothing.
+			public void inputChanged(Viewer<? extends Object> viewer,
+					Object oldInput, Object newInput) {
+				// TODO Auto-generated method stub
+
 			}
 		};
 	}

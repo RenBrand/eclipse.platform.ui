@@ -19,56 +19,54 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
- * The TestLazyModelContentProvider is the lazy version
- * of the model content provider.
+ * The TestLazyModelContentProvider is the lazy version of the model content
+ * provider.
  */
-public class TestLazyModelContentProvider extends TestModelContentProvider implements ILazyContentProvider, IContentProvider {
-	
+public class TestLazyModelContentProvider extends TestModelContentProvider
+		implements ILazyContentProvider<TestElement>,
+		IContentProvider<TestElement> {
+
 	TableViewerTest test;
 	TestElement input;
-	
-	TestLazyModelContentProvider(TableViewerTest testObject){
+
+	TestLazyModelContentProvider(TableViewerTest testObject) {
 		test = testObject;
-		if(!(testObject instanceof VirtualLazyTableViewerTest)) {
-			throw new AssertionFailedError("TestLazyModelContentProvider only works with VirtualLazyTableViewerTest");
+		if (!(testObject instanceof VirtualLazyTableViewerTest)) {
+			throw new AssertionFailedError(
+					"TestLazyModelContentProvider only works with VirtualLazyTableViewerTest");
 		}
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ILazyContentProvider#updateElements(int, int)
-	 */
-	public void updateElement(int index) {
-		
-		((VirtualLazyTableViewerTest)test).updateElementCalled(index);
 
-		if(input == null)
-			return; //Nothing to update yet
-		
-        ((TableViewer) test.fViewer).replace(input.getChildAt(index), index);
+	@Override
+	public void updateElement(int index) {
+
+		((VirtualLazyTableViewerTest) test).updateElementCalled(index);
+
+		if (input == null)
+			return; // Nothing to update yet
+
+		((TableViewer<TestElement, TestElement>) test.fViewer).replace(
+				input.getChildAt(index), index);
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.tests.viewers.TestModelContentProvider#dispose()
-	 */
+	@Override
 	public void dispose() {
 		super.dispose();
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.tests.viewers.TestModelContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
-	 */
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		input = (TestElement) newInput;
-		((TableViewer)viewer).setItemCount(input==null?0:input.getChildCount());
+
+	@Override
+	public void inputChanged(Viewer<? extends TestElement> viewer,
+			TestElement oldInput, TestElement newInput) {
+		input = newInput;
+		((TableViewer<TestElement, TestElement>) viewer)
+				.setItemCount(input == null ? 0 : input.getChildCount());
 		super.inputChanged(viewer, oldInput, newInput);
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.tests.viewers.TestModelContentProvider#getElements(java.lang.Object)
-	 */
-	public Object[] getElements(Object element) {
-		Assert.isTrue(false,"Should not ever call getElements if lazy");
+
+	@Override
+	public TestElement[] getElements(TestElement element) {
+		Assert.isTrue(false, "Should not ever call getElements if lazy");
 		return super.getElements(element);
 	}
 }

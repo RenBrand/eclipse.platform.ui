@@ -49,8 +49,8 @@ import org.eclipse.swt.widgets.Shell;
  * Using a {@link StyledCellLabelProvider} on table viewer.
  */
 public class StyledCellLabelProviderTests {
-	
-	private static int IMAGE_SIZE= 16;
+
+	private static int IMAGE_SIZE = 16;
 
 	private static Image IMAGE1;
 	private static Image IMAGE2;
@@ -59,19 +59,23 @@ public class StyledCellLabelProviderTests {
 
 		Display display = new Display();
 
-		JFaceResources.getColorRegistry().put(JFacePreferences.COUNTER_COLOR, new RGB(0,127,174));
-		
-		IMAGE1= new Image(display, display.getSystemImage(SWT.ICON_WARNING).getImageData().scaledTo(IMAGE_SIZE, IMAGE_SIZE));
-		IMAGE2= new Image(display, display.getSystemImage(SWT.ICON_ERROR).getImageData().scaledTo(IMAGE_SIZE, IMAGE_SIZE));
+		JFaceResources.getColorRegistry().put(JFacePreferences.COUNTER_COLOR,
+				new RGB(0, 127, 174));
 
-		Shell shell= new Shell(display , SWT.CLOSE | SWT.RESIZE);
+		IMAGE1 = new Image(display, display.getSystemImage(SWT.ICON_WARNING)
+				.getImageData().scaledTo(IMAGE_SIZE, IMAGE_SIZE));
+		IMAGE2 = new Image(display, display.getSystemImage(SWT.ICON_ERROR)
+				.getImageData().scaledTo(IMAGE_SIZE, IMAGE_SIZE));
+
+		Shell shell = new Shell(display, SWT.CLOSE | SWT.RESIZE);
 		shell.setSize(400, 600);
 		shell.setLayout(new GridLayout(1, false));
 
-		StyledCellLabelProviderTests example= new StyledCellLabelProviderTests();
-		Control composite= example.createPartControl(shell);
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
+		StyledCellLabelProviderTests example = new StyledCellLabelProviderTests();
+		Control composite = example.createPartControl(shell);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1,
+				1));
+
 		shell.open();
 
 		while (!shell.isDisposed()) {
@@ -83,35 +87,37 @@ public class StyledCellLabelProviderTests {
 	}
 
 	protected boolean useBold;
-	protected TableViewerColumn column;
+	protected TableViewerColumn<File, Object> column;
 
 	public StyledCellLabelProviderTests() {
 	}
 
 	public Composite createPartControl(Composite parent) {
-		Composite composite= new Composite(parent, SWT.NONE);
+		Composite composite = new Composite(parent, SWT.NONE);
 
 		composite.setLayout(new GridLayout(1, true));
 
-		final Label label= new Label(composite, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		final Label label = new Label(composite, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false,
+				false));
 		label.setText("Operations per second: xxxxx"); //$NON-NLS-1$
-		
+
 		final Runnable[] operation = new Runnable[1];
-		
+
 		final Button timeButton = new Button(composite, SWT.CHECK);
 		timeButton.setText("Time");
-		timeButton.addSelectionListener(new SelectionAdapter(){
+		timeButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setTimer(timeButton.getDisplay(), timeButton.getSelection(), operation, label);
+				setTimer(timeButton.getDisplay(), timeButton.getSelection(),
+						operation, label);
 			}
 		});
-		
+
 		final Button stylingButton = new Button(composite, SWT.CHECK);
 		stylingButton.setText("enable styling");
 		stylingButton.setSelection(true);
-		
+
 		final Button boldButton = new Button(composite, SWT.CHECK);
 		boldButton.setText("use bold");
 
@@ -123,12 +129,15 @@ public class StyledCellLabelProviderTests {
 		final Button rightButton = new Button(composite, SWT.RADIO);
 		rightButton.setText("align right");
 
-		final TableViewer tableViewer= new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		final TableViewer<File, Object> tableViewer = new TableViewer<File, Object>(
+				composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		tableViewer.getTable().setHeaderVisible(true);
-		FontData[] boldFontData= getModifiedFontData(tableViewer.getTable().getFont().getFontData(), SWT.BOLD);
+		FontData[] boldFontData = getModifiedFontData(tableViewer.getTable()
+				.getFont().getFontData(), SWT.BOLD);
 		Font boldFont = new Font(Display.getCurrent(), boldFontData);
-		final ExampleLabelProvider labelProvider= new ExampleLabelProvider(boldFont);
-		
+		final ExampleLabelProvider labelProvider = new ExampleLabelProvider(
+				boldFont);
+
 		createColumn(tableViewer, SWT.LEFT, labelProvider);
 
 		boldButton.addSelectionListener(new SelectionAdapter() {
@@ -138,33 +147,35 @@ public class StyledCellLabelProviderTests {
 				tableViewer.refresh();
 			}
 		});
-		
-		operation[0] = new Runnable(){
+
+		operation[0] = new Runnable() {
 			@Override
 			public void run() {
 				tableViewer.refresh();
 			}
 		};
 
-		SelectionAdapter adapter = new SelectionAdapter(){
+		SelectionAdapter adapter = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (((Button)e.getSource()).getSelection()) {
+				if (((Button) e.getSource()).getSelection()) {
 					column.getColumn().dispose();
-					int style = e.getSource() == leftButton ? SWT.LEFT : (e.getSource() == centerButton ? SWT.CENTER : SWT.RIGHT);
+					int style = e.getSource() == leftButton ? SWT.LEFT : (e
+							.getSource() == centerButton ? SWT.CENTER
+							: SWT.RIGHT);
 					createColumn(tableViewer, style, labelProvider);
 				}
 			}
-		}; 
+		};
 		leftButton.addSelectionListener(adapter);
 		centerButton.addSelectionListener(adapter);
 		rightButton.addSelectionListener(adapter);
 
-		TestContentProvider contentProvider= new TestContentProvider();
-		
+		TestContentProvider contentProvider = new TestContentProvider();
+
 		tableViewer.setContentProvider(contentProvider);
-		
-		stylingButton.addSelectionListener(new SelectionAdapter(){
+
+		stylingButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				labelProvider.setOwnerDrawEnabled(stylingButton.getSelection());
@@ -172,28 +183,29 @@ public class StyledCellLabelProviderTests {
 			}
 		});
 
-
-		GridData data= new GridData(GridData.FILL, GridData.FILL, true, true);
+		GridData data = new GridData(GridData.FILL, GridData.FILL, true, true);
 		tableViewer.getControl().setLayoutData(data);
 		tableViewer.setInput(new Object());
 
 		return composite;
 	}
-	
-	private void createColumn(TableViewer viewer, int style, CellLabelProvider labelProvider) {
-		column = new TableViewerColumn(viewer, style);
+
+	private void createColumn(TableViewer<File, Object> viewer, int style,
+			CellLabelProvider<File, Object> labelProvider) {
+		column = new TableViewerColumn<File, Object>(viewer, style);
 		column.getColumn().setWidth(200);
 		column.getColumn().setText("Column");
 		column.setLabelProvider(labelProvider);
 		viewer.refresh();
 	}
-	
+
 	boolean timerOn = false;
 	long startTime;
 	int numOperations;
 	DecimalFormat decimalFormat = new DecimalFormat("##.#");
-	
-	protected void setTimer(final Display display, boolean selection, final Runnable[] operation, final Label resultLabel) {
+
+	protected void setTimer(final Display display, boolean selection,
+			final Runnable[] operation, final Label resultLabel) {
 		timerOn = selection;
 		if (timerOn) {
 			startTime = System.currentTimeMillis();
@@ -211,9 +223,11 @@ public class StyledCellLabelProviderTests {
 					long currentTime = System.currentTimeMillis();
 					long elapsedTime = currentTime - startTime;
 					if (elapsedTime >= 1000) {
-						double timePerOperation = elapsedTime / 1000.0 / numOperations;
-						double operationsPerSecond = 1.0/timePerOperation;
-						resultLabel.setText("Operations per second: " + decimalFormat.format(operationsPerSecond));
+						double timePerOperation = elapsedTime / 1000.0
+								/ numOperations;
+						double operationsPerSecond = 1.0 / timePerOperation;
+						resultLabel.setText("Operations per second: "
+								+ decimalFormat.format(operationsPerSecond));
 						numOperations = 0;
 						startTime = System.currentTimeMillis();
 					}
@@ -227,43 +241,48 @@ public class StyledCellLabelProviderTests {
 		}
 	}
 
-	private static FontData[] getModifiedFontData(FontData[] originalData, int additionalStyle) {
+	private static FontData[] getModifiedFontData(FontData[] originalData,
+			int additionalStyle) {
 		FontData[] styleData = new FontData[originalData.length];
 		for (int i = 0; i < styleData.length; i++) {
 			FontData base = originalData[i];
-			styleData[i] = new FontData(base.getName(), base.getHeight(), base.getStyle() | additionalStyle);
+			styleData[i] = new FontData(base.getName(), base.getHeight(),
+					base.getStyle() | additionalStyle);
 		}
-       	return styleData;
-    }
-	
+		return styleData;
+	}
+
 	private class ExampleLabelProvider extends StyledCellLabelProvider {
 
-		private final Styler fBoldStyler; 
-		
+		private final Styler fBoldStyler;
+
 		public ExampleLabelProvider(final Font boldFont) {
-			fBoldStyler= new Styler() {
+			fBoldStyler = new Styler() {
 				@Override
 				public void applyStyles(TextStyle textStyle) {
-					textStyle.font= boldFont;
+					textStyle.font = boldFont;
 				}
 			};
 		}
-		
+
 		@Override
 		public void update(ViewerCell cell) {
-			Object element= cell.getElement();
-			
+			Object element = cell.getElement();
+
 			if (element instanceof File) {
-				File file= (File) element;
-				
-				Styler style= file.isDirectory() && useBold ? fBoldStyler: null;
-				StyledString styledString= new StyledString(file.getName(), style);
-				String decoration = MessageFormat.format(" ({0} bytes)", new Object[] { new Long(file.length()) }); //$NON-NLS-1$
+				File file = (File) element;
+
+				Styler style = file.isDirectory() && useBold ? fBoldStyler
+						: null;
+				StyledString styledString = new StyledString(file.getName(),
+						style);
+				String decoration = MessageFormat
+						.format(" ({0} bytes)", new Object[] { new Long(file.length()) }); //$NON-NLS-1$
 				styledString.append(decoration, StyledString.COUNTER_STYLER);
-				
+
 				cell.setText(styledString.toString());
 				cell.setStyleRanges(styledString.getStyleRanges());
-				
+
 				if (file.isDirectory()) {
 					cell.setImage(IMAGE1);
 				} else {
@@ -275,7 +294,7 @@ public class StyledCellLabelProviderTests {
 
 			super.update(cell);
 		}
-		
+
 		@Override
 		protected void measure(Event event, Object element) {
 			super.measure(event, element);
@@ -307,12 +326,13 @@ public class StyledCellLabelProviderTests {
 		}
 
 	}
-	
-	private static class TestContentProvider implements IStructuredContentProvider {
+
+	private static class TestContentProvider implements
+			IStructuredContentProvider<File, Object> {
 
 		@Override
-		public Object[] getElements(Object element) {
-			return new File[]{
+		public File[] getElements(Object element) {
+			return new File[] {
 					new File("asdfkjghfasdkjasdfhjgasdfkjhg", 2348, false),
 					new File("sdafkuyasdfkljh", 2348, false),
 					new File("asdklufhalsdkhlkjhnklj hlh", 2348, true),
@@ -360,8 +380,7 @@ public class StyledCellLabelProviderTests {
 					new File("auihy akl;h l;j", 2348, false),
 					new File("caiugh j l;kjlh jcd", 2328, true),
 					new File("auio;h jkh lhjl h ljjhbvj", 2348, false),
-					new File("ajklkja kj lkjh jklh ", 2248, true),
-			};
+					new File("ajklkja kj lkjh jklh ", 2248, true), };
 		}
 
 		@Override
@@ -369,7 +388,10 @@ public class StyledCellLabelProviderTests {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends Object> viewer,
+				Object oldInput, Object newInput) {
+			// TODO Auto-generated method stub
+
 		}
 	}
 }

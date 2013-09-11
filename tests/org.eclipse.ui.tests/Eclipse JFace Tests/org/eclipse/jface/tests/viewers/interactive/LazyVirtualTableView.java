@@ -16,14 +16,13 @@ import java.util.List;
 
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ILazyContentProvider;
-import org.eclipse.jface.viewers.Viewer;
 
 /**
  * The LazyVirtualTableView is the VirtualTableView with lazy content.
  */
 public class LazyVirtualTableView extends VirtualTableView {
 
-	private List elements;
+	private List<String> elements;
 
 	/**
 	 * Create a new instance of the receiver.
@@ -34,18 +33,18 @@ public class LazyVirtualTableView extends VirtualTableView {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void initElements() {
-		elements = new ArrayList();
+		elements = new ArrayList<String>();
 		for (int i = 0; i < itemCount; i++) {
 			elements.add("Element " + String.valueOf(i));
 		}
 	}
 
 	@Override
-	protected IContentProvider getContentProvider() {
-		return new ILazyContentProvider() {
+	protected IContentProvider<Object> getContentProvider() {
+		return new ILazyContentProvider<Object>() {
 
 			@Override
 			public void updateElement(int index) {
@@ -58,19 +57,22 @@ public class LazyVirtualTableView extends VirtualTableView {
 			}
 
 			@Override
-			public void inputChanged(Viewer viewer, Object oldInput,
-					Object newInput) {
-				// Do nothing.
+			public void inputChanged(
+					org.eclipse.jface.viewers.Viewer<? extends Object> viewer,
+					Object oldInput, Object newInput) {
+				// TODO Auto-generated method stub
+
 			}
 		};
 	}
 
-	protected void doRemove(Object[] selection, int[] selectionIndices) {
+	@Override
+	protected void doRemove(String[] selection, int[] selectionIndices) {
 		for (int i = 0; i < selectionIndices.length; i++) {
 			int index = selectionIndices[i];
 			elements.remove(index);
 		}
-		super.doRemove(selection);
+		super.doRemove(selection, selectionIndices);
 	}
 
 	@Override

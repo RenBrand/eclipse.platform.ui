@@ -35,17 +35,18 @@ public class ListViewerRefreshTest extends TestCase {
 
 	private Label label = null;
 
-	private ListViewer viewer = null;
+	private ListViewer<String, List<String>> viewer = null;
 
-	private ArrayList input = null;
+	private ArrayList<String> input = null;
 
+	@Override
 	protected void setUp() throws Exception {
 		shell = new Shell();
 		shell.setSize(400, 200);
 		shell.setLayout(new FillLayout());
 		label = new Label(shell, SWT.WRAP);
-		viewer = new ListViewer(shell);
-		input = new ArrayList();
+		viewer = new ListViewer<String, List<String>>(shell);
+		input = new ArrayList<String>();
 
 		for (int i = 0; i < 50; i++) {
 			input.add("item " + i); //$NON-NLS-1$
@@ -56,7 +57,8 @@ public class ListViewerRefreshTest extends TestCase {
 		shell.layout();
 		shell.open();
 	}
-	
+
+	@Override
 	protected void tearDown() throws Exception {
 		shell.dispose();
 		shell = null;
@@ -65,7 +67,7 @@ public class ListViewerRefreshTest extends TestCase {
 	/**
 	 * Asserts the ability to refresh without a selection and preserve the
 	 * scrolled to position.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testNoSelectionRefresh() throws Exception {
@@ -73,12 +75,14 @@ public class ListViewerRefreshTest extends TestCase {
 		readAndDispatch();
 
 		run("Scrolled to position 30.", new Runnable() { //$NON-NLS-1$
+					@Override
 					public void run() {
 						viewer.reveal(input.get(30));
 					}
 				});
 
 		run("Refreshed viewer without a selection.", new Runnable() { //$NON-NLS-1$
+					@Override
 					public void run() {
 						viewer.refresh();
 					}
@@ -91,7 +95,7 @@ public class ListViewerRefreshTest extends TestCase {
 	/**
 	 * Asserts the ability to refresh with a selection and preserve the scrolled
 	 * to position.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testSelectionRefresh() throws Exception {
@@ -99,32 +103,34 @@ public class ListViewerRefreshTest extends TestCase {
 		readAndDispatch();
 
 		run("Setting selection to index 30.", new Runnable() { //$NON-NLS-1$
+					@Override
 					public void run() {
 						viewer.setSelection(new StructuredSelection(input
 								.get(30)));
 					}
 				});
-		
+
 		// Ensure that to index is 0
 		viewer.getList().setTopIndex(0);
-		
+
 		run("Refreshed viewer with selection.", new Runnable() { //$NON-NLS-1$
+					@Override
 					public void run() {
 						viewer.refresh();
 					}
 				});
-		
+
 		// Checking that the viewer is not scrolling
 		assertTrue(viewer.getList().getTopIndex() == 0);
-		
+
 		viewer.getList().showSelection();
-		
+
 		assertTrue(viewer.getList().getTopIndex() != 0);
 	}
-	
+
 	/**
 	 * Runs the runnable and displays the description.
-	 * 
+	 *
 	 * @param description
 	 * @param runnable
 	 */
@@ -140,7 +146,8 @@ public class ListViewerRefreshTest extends TestCase {
 	 */
 	private void readAndDispatch() {
 		Display display = Display.getCurrent();
-		while(display.readAndDispatch());
+		while (display.readAndDispatch())
+			;
 
 		try {
 			Thread.sleep(DELAY);
@@ -149,16 +156,22 @@ public class ListViewerRefreshTest extends TestCase {
 		}
 	}
 
-	private class ContentProvider implements IStructuredContentProvider {
+	private class ContentProvider implements
+			IStructuredContentProvider<String, List<String>> {
 
-		public Object[] getElements(Object inputElement) {
-			return ((List) inputElement).toArray();
+		@Override
+		public String[] getElements(List<String> inputElement) {
+			String[] results = new String[inputElement.size()];
+			return inputElement.toArray(results);
 		}
 
+		@Override
 		public void dispose() {
 		}
 
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		@Override
+		public void inputChanged(Viewer<? extends List<String>> viewer,
+				List<String> oldInput, List<String> newInput) {
 		}
 	}
 }
