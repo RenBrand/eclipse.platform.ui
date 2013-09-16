@@ -26,7 +26,7 @@ import org.eclipse.jface.util.SafeRunnable;
 public class BaseLabelProvider<E> extends EventManager implements IBaseLabelProvider<E> {
 
 	@Override
-	public void addListener(ILabelProviderListener listener) {
+    public void addListener(ILabelProviderListener<E> listener) {
         addListenerObject(listener);
     }
 
@@ -51,7 +51,7 @@ public class BaseLabelProvider<E> extends EventManager implements IBaseLabelProv
     }
 
 	@Override
-	public void removeListener(ILabelProviderListener listener) {
+    public void removeListener(ILabelProviderListener<E> listener) {
         removeListenerObject(listener);
     }
 
@@ -64,10 +64,11 @@ public class BaseLabelProvider<E> extends EventManager implements IBaseLabelProv
 	 * 
 	 * @see ILabelProviderListener#labelProviderChanged
 	 */
-	protected void fireLabelProviderChanged(final LabelProviderChangedEvent event) {
+	protected void fireLabelProviderChanged(final LabelProviderChangedEvent<E> event) {
 		Object[] listeners = getListeners();
 		for (int i = 0; i < listeners.length; ++i) {
-			final ILabelProviderListener l = (ILabelProviderListener) listeners[i];
+			@SuppressWarnings("unchecked")
+			final ILabelProviderListener<E> l = (ILabelProviderListener<E>) listeners[i];
 			SafeRunnable.run(new SafeRunnable() {
 				@Override
 				public void run() {

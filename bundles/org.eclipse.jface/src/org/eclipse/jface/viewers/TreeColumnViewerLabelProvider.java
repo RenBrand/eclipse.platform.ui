@@ -38,13 +38,13 @@ public class TreeColumnViewerLabelProvider<E,I> extends
 		}
 
 		@Override
-		public void addListener(ILabelProviderListener listener) {
+		public void addListener(ILabelProviderListener<E> listener) {
 			// Do nothing by default
 
 		}
 
 		@Override
-		public void removeListener(ILabelProviderListener listener) {
+		public void removeListener(ILabelProviderListener<E> listener) {
 			// Do nothing by default
 
 		}

@@ -53,8 +53,9 @@ public class ArrayContentProvider<E> implements IStructuredContentProvider<E,Obj
 	/**
 	 * Constructor for ArrayContentProvider
 	 *
-	 * @param componentType The classtype of the used element e.g. MyElement.class
-	 * @since 3.10
+	 * @param componentType
+	 *            The classtype of the used element e.g. MyElement.class
+	 * @since 3.11
 	 *
 	 */
 	public ArrayContentProvider(Class<E> componentType) {
@@ -89,11 +90,13 @@ public class ArrayContentProvider<E> implements IStructuredContentProvider<E,Obj
 	 * Returns an instance of ArrayContentProvider. Since instances of this
 	 * class do not maintain any state, they can be shared between multiple
 	 * clients.
-	 * @param componentType The classtype of the used element e.g. MyElement.class
+	 * 
+	 * @param componentType
+	 *            The classtype of the used element e.g. MyElement.class
 	 *
 	 * @return an instance of ArrayContentProvider
 	 *
-	 * @since 3.10
+	 * @since 3.11
 	 */
 	public static <E> ArrayContentProvider<E> getInstance(Class<E> componentType) {
 

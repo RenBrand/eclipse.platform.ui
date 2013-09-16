@@ -77,11 +77,11 @@ public abstract class ContentViewer<E,I> extends Viewer<I>{
      * a label provider avoids having to define public methods
      * for internal events.
      */
-    private final ILabelProviderListener labelProviderListener = new ILabelProviderListener() {
+    private final ILabelProviderListener<E> labelProviderListener = new ILabelProviderListener<E>() {
     	private boolean logWhenDisposed = true; // initially true, set to false
         
 		@Override
-		public void labelProviderChanged(LabelProviderChangedEvent event) {
+        public void labelProviderChanged(LabelProviderChangedEvent<E> event) {
         	Control control = getControl();
         	if (control == null || control.isDisposed()) {
     			if (logWhenDisposed) {
@@ -202,7 +202,7 @@ public abstract class ContentViewer<E,I> extends Viewer<I>{
      * </p>
      * @param event the change event
      */
-    protected void handleLabelProviderChanged(LabelProviderChangedEvent event) {
+    protected void handleLabelProviderChanged(LabelProviderChangedEvent<E> event) {
         labelProviderChanged();
     }
 
