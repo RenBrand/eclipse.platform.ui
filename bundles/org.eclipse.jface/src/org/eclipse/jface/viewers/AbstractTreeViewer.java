@@ -1375,7 +1375,7 @@ public abstract class AbstractTreeViewer<E,I> extends ColumnViewer<E,I> {
 					I inputParent = (I) parent;
 					return super.getRawChildren(inputParent);
 				}
-				IContentProvider<I> cp = getContentProvider();
+				IContentProvider<? super I> cp = getContentProvider();
 				if (cp instanceof ITreePathContentProvider) {
 					@SuppressWarnings("unchecked")
 					ITreePathContentProvider<E,I> tpcp = (ITreePathContentProvider<E,I>) cp;
@@ -1739,10 +1739,10 @@ public abstract class AbstractTreeViewer<E,I> extends ColumnViewer<E,I> {
 			TreePath<E> treePath = (TreePath<E>) elementOrTreePath;
 			return treePath.getParentPath();
 		}
-		IContentProvider<I> cp = getContentProvider();
+		IContentProvider<? super I> cp = getContentProvider();
 		if (cp instanceof ITreePathContentProvider) {
 			@SuppressWarnings("unchecked")
-			ITreePathContentProvider<E,I> tpcp = (ITreePathContentProvider<E,I>) cp;
+			ITreePathContentProvider<E,? super I> tpcp = (ITreePathContentProvider<E,? super I>) cp;
 			@SuppressWarnings("unchecked")
 			E element = (E) elementOrTreePath;
 			TreePath<E>[] paths = tpcp.getParents(element);
@@ -1755,7 +1755,7 @@ public abstract class AbstractTreeViewer<E,I> extends ColumnViewer<E,I> {
 		}
 		if (cp instanceof ITreeContentProvider) {
 			@SuppressWarnings("unchecked")
-			ITreeContentProvider<E,I> tcp = (ITreeContentProvider<E,I>) cp;
+			ITreeContentProvider<E,? super I> tcp = (ITreeContentProvider<E,? super I>) cp;
 			@SuppressWarnings("unchecked")
 			E element = (E)elementOrTreePath;
 			return tcp.getParent(element);
@@ -2176,10 +2176,10 @@ public abstract class AbstractTreeViewer<E,I> extends ColumnViewer<E,I> {
 			element = castObjectToElement(elementOrTreePath);
 			path = null;
 		}
-		IContentProvider<I> cp = getContentProvider();
+		IContentProvider<? super I> cp = getContentProvider();
 		if (cp instanceof ITreePathContentProvider) {
 			@SuppressWarnings("unchecked")
-			ITreePathContentProvider<E,I> tpcp = (ITreePathContentProvider<E,I>) cp;
+			ITreePathContentProvider<E,? super I> tpcp = (ITreePathContentProvider<E,? super I>) cp;
 			if (path == null) {
 				// A path was not provided so try and find one
 				Widget w = findItem(element);
@@ -2448,13 +2448,13 @@ public abstract class AbstractTreeViewer<E,I> extends ColumnViewer<E,I> {
 	 * <code>ITreeContentProvider</code>.
 	 */
 	@Override
-	public void setContentProvider(IContentProvider<I> provider) {
+	public void setContentProvider(IContentProvider<? super I> provider) {
 		// the actual check is in assertContentProviderType
 		super.setContentProvider(provider);
 	}
 
 	@Override
-	protected void assertContentProviderType(IContentProvider<I> provider) {
+	protected void assertContentProviderType(IContentProvider<? super I> provider) {
 		Assert.isTrue(provider instanceof ITreeContentProvider
 				|| provider instanceof ITreePathContentProvider);
 	}

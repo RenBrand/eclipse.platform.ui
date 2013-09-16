@@ -1668,7 +1668,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	public abstract void reveal(E element);
 
 	@Override
-	public void setContentProvider(IContentProvider<I> provider) {
+	public void setContentProvider(IContentProvider<? super I> provider) {
 		assertContentProviderType(provider);
 		super.setContentProvider(provider);
 	}
@@ -1678,7 +1678,7 @@ public abstract class StructuredViewer<E,I> extends ContentViewer<E,I> implement
 	 * supported types.
 	 * @param provider
 	 */
-	protected void assertContentProviderType(IContentProvider<I> provider) {
+	protected void assertContentProviderType(IContentProvider<? super I> provider) {
 		Assert.isTrue(provider instanceof IStructuredContentProvider);
 	}
 

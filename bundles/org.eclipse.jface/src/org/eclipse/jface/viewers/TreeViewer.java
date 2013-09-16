@@ -340,7 +340,7 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 	}
 
 	@Override
-	protected void assertContentProviderType(IContentProvider<I> provider) {
+	protected void assertContentProviderType(IContentProvider<? super I> provider) {
 		if (provider instanceof ILazyTreeContentProvider
 				|| provider instanceof ILazyTreePathContentProvider) {
 			return;
@@ -935,7 +935,7 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 	}
 
 	@Override
-	public void setContentProvider(IContentProvider<I> provider) {
+	public void setContentProvider(IContentProvider<? super I> provider) {
 		contentProviderIsLazy = (provider instanceof ILazyTreeContentProvider)
 				|| (provider instanceof ILazyTreePathContentProvider);
 		contentProviderIsTreeBased = provider instanceof ILazyTreePathContentProvider;

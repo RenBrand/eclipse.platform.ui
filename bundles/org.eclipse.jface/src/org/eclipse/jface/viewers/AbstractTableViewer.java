@@ -84,10 +84,10 @@ public abstract class AbstractTableViewer<E,I> extends ColumnViewer<E,I> {
 					if (element == null) {
 						// Didn't find it so make a request
 						// Keep looking if it is not in the cache.
-						IContentProvider<I> contentProvider = getContentProvider();
+						IContentProvider<? super I> contentProvider = getContentProvider();
 						// If we are building lazily then request lookup now
 						if (contentProvider instanceof ILazyContentProvider) {
-							ILazyContentProvider<I> lazyContentProvider = ((ILazyContentProvider<I>) contentProvider);
+							ILazyContentProvider<? super I> lazyContentProvider = ((ILazyContentProvider<? super I>) contentProvider);
 							lazyContentProvider.updateElement(index);
 							return;
 						}
@@ -502,7 +502,7 @@ public abstract class AbstractTableViewer<E,I> extends ColumnViewer<E,I> {
 		List<E> result = new ArrayList<E>();
 		int[] selectionIndices = doGetSelectionIndices();
 		if (getContentProvider() instanceof ILazyContentProvider) {
-			ILazyContentProvider<I> lazy = (ILazyContentProvider<I>) getContentProvider();
+			ILazyContentProvider<? super I> lazy = (ILazyContentProvider<? super I>) getContentProvider();
 			for (int i = 0; i < selectionIndices.length; i++) {
 				int selectionIndex = selectionIndices[i];
 				lazy.updateElement(selectionIndex);// Start the update
@@ -659,7 +659,7 @@ public abstract class AbstractTableViewer<E,I> extends ColumnViewer<E,I> {
 	private void internalVirtualRefreshAll() {
 
 		I root = getRoot();
-		IContentProvider<I> contentProvider = getContentProvider();
+		IContentProvider<? super I> contentProvider = getContentProvider();
 
 		// Invalidate for lazy
 		if (!(contentProvider instanceof ILazyContentProvider)
@@ -951,7 +951,7 @@ public abstract class AbstractTableViewer<E,I> extends ColumnViewer<E,I> {
 		}
 
 		if (getContentProvider() instanceof ILazyContentProvider) {
-			ILazyContentProvider<I> provider = (ILazyContentProvider<I>) getContentProvider();
+			ILazyContentProvider<? super I> provider = (ILazyContentProvider<? super I>) getContentProvider();
 
 			// Now go through it again until all is done or we are no longer
 			// virtual
@@ -1076,7 +1076,7 @@ public abstract class AbstractTableViewer<E,I> extends ColumnViewer<E,I> {
 	}
 
 	@Override
-	protected void assertContentProviderType(IContentProvider<I> provider) {
+	protected void assertContentProviderType(IContentProvider<? super I> provider) {
 		Assert.isTrue(provider instanceof IStructuredContentProvider
 				|| provider instanceof ILazyContentProvider);
 	}
