@@ -154,7 +154,6 @@ public class Bug138608Test extends ViewerTestCase {
 		public void inputChanged(Viewer<? extends TreeNode<String>> viewer,
 				TreeNode<String> oldInput, TreeNode<String> newInput) {
 			// TODO Auto-generated method stub
-
 		}
 
 	}

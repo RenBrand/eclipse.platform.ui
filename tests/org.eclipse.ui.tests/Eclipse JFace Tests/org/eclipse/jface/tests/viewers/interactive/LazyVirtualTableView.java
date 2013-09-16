@@ -61,7 +61,6 @@ public class LazyVirtualTableView extends VirtualTableView {
 					org.eclipse.jface.viewers.Viewer<? extends Object> viewer,
 					Object oldInput, Object newInput) {
 				// TODO Auto-generated method stub
-
 			}
 		};
 	}

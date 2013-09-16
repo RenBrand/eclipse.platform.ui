@@ -391,7 +391,6 @@ public class StyledCellLabelProviderTests {
 		public void inputChanged(Viewer<? extends Object> viewer,
 				Object oldInput, Object newInput) {
 			// TODO Auto-generated method stub
-
 		}
 	}
 }

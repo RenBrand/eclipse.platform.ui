@@ -25,7 +25,6 @@ import org.eclipse.jface.viewers.Viewer;
 public class TestLazyModelContentProvider extends TestModelContentProvider
 		implements ILazyContentProvider<TestElement>,
 		IContentProvider<TestElement> {
-
 	TableViewerTest test;
 	TestElement input;
 

@@ -91,7 +91,6 @@ public class Bug203657TreeViewerTest extends ViewerTestCase {
 					@Override
 					public void inputChanged(Viewer<? extends MyModel> viewer,
 							MyModel oldInput, MyModel newInput) {
-
 					}
 
 					@Override

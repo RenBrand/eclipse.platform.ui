@@ -79,13 +79,6 @@ public class SimpleVirtualLazyTreeViewerTest extends ViewerTestCase {
 			return null;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.eclipse.jface.viewers.ILazyTreeContentProvider#updateChildCount
-		 * (java.lang.Object, int)
-		 */
 		@Override
 		public void updateChildCount(String element, int currentChildCount) {
 			if (printCallbacks)

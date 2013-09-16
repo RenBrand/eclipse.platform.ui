@@ -108,7 +108,6 @@ public abstract class CompositeLabelProviderTest extends ViewerTestCase {
 		public void inputChanged(Viewer<? extends TestElement> viewer,
 				TestElement oldInput, TestElement newInput) {
 			// TODO Auto-generated method stub
-
 		}
 
 	}

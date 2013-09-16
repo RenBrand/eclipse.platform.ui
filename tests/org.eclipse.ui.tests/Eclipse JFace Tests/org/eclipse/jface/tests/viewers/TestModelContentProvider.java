@@ -25,7 +25,7 @@ import org.eclipse.jface.viewers.Viewer;
 public class TestModelContentProvider implements ITestModelListener,
 		IStructuredContentProvider<TestElement, TestElement>,
 		ITreeContentProvider<TestElement, TestElement> {
-	Viewer<TestElement> fViewer;
+	Viewer<? extends TestElement> fViewer;
 
 	@Override
 	public void dispose() {
@@ -120,7 +120,7 @@ public class TestModelContentProvider implements ITestModelListener,
 	@Override
 	public void inputChanged(Viewer<? extends TestElement> viewer,
 			TestElement oldInput, TestElement newInput) {
-		fViewer = (Viewer<TestElement>) viewer;
+		fViewer = viewer;
 		TestElement oldElement = oldInput;
 		if (oldElement != null) {
 			oldElement.getModel().removeListener(this);

@@ -37,12 +37,10 @@ public abstract class ViewerComparatorTest extends ViewerTestCase {
 			"Kim", "Michael", "Mike", "Paul", "Susan", "Tod" };
 	protected String[] TEAM1_SORTED_WITH_INSERT = { "Andrea", "Boris", "Duong",
 			"Eric", "Karice", "Kim", "Michael", "Mike", "Paul", "Susan", "Tod" };
-
 	protected String RUNTIME = "Runtime";
 	protected String[] TEAM2 = { "Pascal", "DJ", "Jeff", "Andrew", "Oleg" };
 	protected String[] TEAM2_SORTED = { "Andrew", "DJ", "Jeff", "Oleg",
 			"Pascal" };
-
 	protected String CORE = "Core";
 	protected String[] TEAM3 = { "John", "Michael", "Bogdan" };
 	protected String[] TEAM3_SORTED = { "Bogdan", "John", "Michael" };
@@ -119,12 +117,7 @@ public abstract class ViewerComparatorTest extends ViewerTestCase {
 	 * label provider
 	 */
 	protected class TeamModelLabelProvider extends LabelProvider<Object> {
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
-		 */
+	
 		@Override
 		public String getText(Object element) {
 			if (element instanceof Team)

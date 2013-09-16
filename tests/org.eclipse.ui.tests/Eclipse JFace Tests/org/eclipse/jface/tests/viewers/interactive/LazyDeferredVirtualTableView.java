@@ -113,7 +113,6 @@ public class LazyDeferredVirtualTableView extends VirtualTableView {
 			public void inputChanged(Viewer<? extends Object> viewer,
 					Object oldInput, Object newInput) {
 				// TODO Auto-generated method stub
-
 			}
 		};
 	}
