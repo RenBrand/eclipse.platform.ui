@@ -9,6 +9,7 @@
  *     Tom Schindl - initial API and implementation
  *     Dinko Ivanov - bug 164365
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -39,9 +40,9 @@ import org.eclipse.swt.widgets.TableItem;
 public class Snippet027ComboBoxCellEditors {
 	private class MyCellModifier implements ICellModifier {
 
-		private TableViewer viewer;
+		private TableViewer<MyModel, List<MyModel>> viewer;
 
-		public MyCellModifier(TableViewer viewer) {
+		public MyCellModifier(TableViewer<MyModel, List<MyModel>> viewer) {
 			this.viewer = viewer;
 		}
 
@@ -61,7 +62,7 @@ public class Snippet027ComboBoxCellEditors {
 			TableItem item = (TableItem) element;
 			// We get the index and need to calculate the real value
 			((MyModel) item.getData()).counter = ((Integer) value).intValue() * 10;
-			viewer.update(item.getData(), null);
+			viewer.update((MyModel) item.getData(), null);
 		}
 	}
 
@@ -80,14 +81,15 @@ public class Snippet027ComboBoxCellEditors {
 
 	public Snippet027ComboBoxCellEditors(Shell shell) {
 		final Table table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION);
-		final TableViewer v = new TableViewer(table);
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				table);
 		final MyCellModifier modifier = new MyCellModifier(v);
 
 		TableColumn column = new TableColumn(table, SWT.NONE);
 		column.setWidth(200);
 
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setCellModifier(modifier);
 		v.setColumnProperties(new String[] { "column1" });
 		v.setCellEditors(new CellEditor[] { new ComboBoxCellEditor(
@@ -101,7 +103,6 @@ public class Snippet027ComboBoxCellEditors {
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10; i++) {
 			elements.add(new MyModel(i * 10));
 		}

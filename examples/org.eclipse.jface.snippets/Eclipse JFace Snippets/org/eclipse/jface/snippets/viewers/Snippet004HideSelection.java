@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 - 2014 Tom Schindl and others.
+ * Copyright (c) 2006, 2014 Tom Schindl and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Lars Vogel <Lars.Vogel@gmail.com> - Bug 414565
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
  *******************************************************************************/
@@ -48,10 +49,10 @@ public class Snippet004HideSelection {
 	}
 
 	public Snippet004HideSelection(Shell shell) {
-		final TableViewer v = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setInput(createModel());
 		v.getTable().setLinesVisible(true);
 		v.getTable().addMouseListener(new MouseAdapter() {
@@ -68,7 +69,6 @@ public class Snippet004HideSelection {
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10; i++) {
 			elements.add(new MyModel(i));
 		}

@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -39,11 +40,14 @@ import org.eclipse.swt.widgets.TreeItem;
  *
  */
 public class Snippet038TreeViewerInlinelEditingOldAPI {
-	private class MyContentProvider implements ITreeContentProvider {
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
 
 		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel) inputElement).child.toArray();
+		public MyModel[] getElements(MyModel inputElement) {
+
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
 		}
 
 		@Override
@@ -52,27 +56,28 @@ public class Snippet038TreeViewerInlinelEditingOldAPI {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
 
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public MyModel[] getChildren(MyModel parentElement) {
 			return getElements(parentElement);
 		}
 
 		@Override
-		public Object getParent(Object element) {
+		public MyModel getParent(MyModel element) {
 			if (element == null) {
 				return null;
 			}
 
-			return ((MyModel) element).parent;
+			return element.parent;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel) element).child.size() > 0;
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
 		}
 
 	}
@@ -99,24 +104,24 @@ public class Snippet038TreeViewerInlinelEditingOldAPI {
 		}
 	}
 
-	public class MyLabelProvider extends LabelProvider implements
-			ITableLabelProvider {
+	public class MyLabelProvider extends LabelProvider<MyModel> implements
+			ITableLabelProvider<MyModel> {
 		FontRegistry registry = new FontRegistry();
 
 		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
+		public Image getColumnImage(MyModel element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public String getColumnText(Object element, int columnIndex) {
+		public String getColumnText(MyModel element, int columnIndex) {
 			return "Column " + columnIndex + " => " + element.toString();
 		}
 	}
 
 	public Snippet038TreeViewerInlinelEditingOldAPI(Shell shell) {
-		final TreeViewer viewer = new TreeViewer(shell, SWT.FULL_SELECTION);
-
+		final TreeViewer<MyModel, MyModel> viewer = new TreeViewer<MyModel, MyModel>(
+				shell, SWT.FULL_SELECTION);
 		createColumnFor(viewer, "Column 1");
 		createColumnFor(viewer, "Column 2");
 
@@ -141,7 +146,7 @@ public class Snippet038TreeViewerInlinelEditingOldAPI {
 			public void modify(Object element, String property, Object value) {
 				((MyModel) ((TreeItem) element).getData()).counter = Integer
 						.parseInt(value.toString());
-				viewer.update(((TreeItem) element).getData(), null);
+				viewer.update((MyModel) ((TreeItem) element).getData(), null);
 			}
 
 		});
@@ -150,7 +155,8 @@ public class Snippet038TreeViewerInlinelEditingOldAPI {
 		viewer.setInput(createModel());
 	}
 
-	private void createColumnFor(TreeViewer viewer, String label) {
+	private void createColumnFor(TreeViewer<MyModel, MyModel> viewer,
+			String label) {
 		TreeColumn column = new TreeColumn(viewer.getTree(), SWT.NONE);
 		column.setWidth(200);
 		column.setText(label);

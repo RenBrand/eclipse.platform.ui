@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -42,46 +43,53 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /**
- * Demonstrate how to work-around 3.3.1 limitation when it comes to TAB-Traversal and
- * checkbox editors. 3.4 will hopefully provide provide an out-of-the-box fix see bug 198502
+ * Demonstrate how to work-around 3.3.1 limitation when it comes to
+ * TAB-Traversal and checkbox editors. 3.4 will hopefully provide provide an
+ * out-of-the-box fix see bug 198502
  *
  * @author Tom Schindl <tom.schindl@bestsolution.at>
  *
  */
 public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 	public Snippet048TreeViewerTabWithCheckboxFor3_3(final Shell shell) {
-		final TreeViewer v = new TreeViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TreeViewer<MyModel, MyModel> v = new TreeViewer<MyModel, MyModel>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.getTree().setLinesVisible(true);
 		v.getTree().setHeaderVisible(true);
 
-		final TreeViewerFocusCellManager mgr = new TreeViewerFocusCellManager(v,new FocusCellOwnerDrawHighlighter(v));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(v) {
+		final TreeViewerFocusCellManager mgr = new TreeViewerFocusCellManager(
+				v, new FocusCellOwnerDrawHighlighter(v));
+		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(
+				v) {
 			@Override
 			protected boolean isEditorActivationEvent(
 					ColumnViewerEditorActivationEvent event) {
 				return event.eventType == ColumnViewerEditorActivationEvent.TRAVERSAL
 						|| event.eventType == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION
-						|| (event.eventType == ColumnViewerEditorActivationEvent.KEY_PRESSED && ( event.keyCode == SWT.CR || event.character == ' ' ))
+						|| (event.eventType == ColumnViewerEditorActivationEvent.KEY_PRESSED && (event.keyCode == SWT.CR || event.character == ' '))
 						|| event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
 			}
 		};
 
-		TreeViewerEditor.create(v, mgr, actSupport, ColumnViewerEditor.TABBING_HORIZONTAL
-				| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
-				| ColumnViewerEditor.TABBING_VERTICAL | ColumnViewerEditor.KEYBOARD_ACTIVATION);
+		TreeViewerEditor.create(v, mgr, actSupport,
+				ColumnViewerEditor.TABBING_HORIZONTAL
+						| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
+						| ColumnViewerEditor.TABBING_VERTICAL
+						| ColumnViewerEditor.KEYBOARD_ACTIVATION);
 
 		final TextCellEditor textCellEditor = new TextCellEditor(v.getTree());
-		final CheckboxCellEditor checkboxCellEditor = new CheckboxCellEditor(v.getTree());
+		final CheckboxCellEditor checkboxCellEditor = new CheckboxCellEditor(
+				v.getTree());
 
-		TreeViewerColumn column = new TreeViewerColumn(v, SWT.NONE);
+		TreeViewerColumn<MyModel, MyModel> column = new TreeViewerColumn<MyModel, MyModel>(
+				v, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(true);
 		column.getColumn().setText("Column 1");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, MyModel>() {
 
 			@Override
-			public String getText(Object element) {
+			public String getText(MyModel element) {
 				return "Column 1 => " + element.toString();
 			}
 
@@ -104,20 +112,19 @@ public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 
 			@Override
 			protected void setValue(Object element, Object value) {
-				((MyModel) element).counter = Integer
-						.parseInt(value.toString());
-				v.update(element, null);
+				((MyModel) element).counter = Integer.parseInt(value.toString());
+				v.update((MyModel) element, null);
 			}
 		});
 
-		column = new TreeViewerColumn(v, SWT.NONE);
+		column = new TreeViewerColumn<MyModel, MyModel>(v, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(true);
 		column.getColumn().setText("Column 2");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, MyModel>() {
 
 			@Override
-			public String getText(Object element) {
+			public String getText(MyModel element) {
 				return "Column 2 => " + element.toString();
 			}
 
@@ -140,21 +147,20 @@ public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 
 			@Override
 			protected void setValue(Object element, Object value) {
-				((MyModel) element).counter = Integer
-				.parseInt(value.toString());
-				v.update(element, null);
+				((MyModel) element).counter = Integer.parseInt(value.toString());
+				v.update((MyModel) element, null);
 			}
 		});
 
-		column = new TreeViewerColumn(v, SWT.NONE);
+		column = new TreeViewerColumn<MyModel, MyModel>(v, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(true);
 		column.getColumn().setText("Column 3");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, MyModel>() {
 
 			@Override
-			public String getText(Object element) {
-				return ((MyModel)element).bool + "";
+			public String getText(MyModel element) {
+				return element.bool + "";
 			}
 
 		});
@@ -176,8 +182,8 @@ public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 
 			@Override
 			protected void setValue(Object element, Object value) {
-				((MyModel) element).bool = ((Boolean)value).booleanValue();
-				v.update(element, null);
+				((MyModel) element).bool = ((Boolean) value).booleanValue();
+				v.update((MyModel) element, null);
 			}
 		});
 
@@ -187,14 +193,22 @@ public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 
 			@Override
 			public void keyTraversed(TraverseEvent e) {
-				if( (e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS) && mgr.getFocusCell().getColumnIndex() == 2 ) {
+				if ((e.detail == SWT.TRAVERSE_TAB_NEXT || e.detail == SWT.TRAVERSE_TAB_PREVIOUS)
+						&& mgr.getFocusCell().getColumnIndex() == 2) {
 					ColumnViewerEditor editor = v.getColumnViewerEditor();
 					ViewerCell cell = mgr.getFocusCell();
 
 					try {
-						Method m = ColumnViewerEditor.class.getDeclaredMethod("processTraverseEvent", new Class[] {int.class,ViewerRow.class,TraverseEvent.class});
+						Method m = ColumnViewerEditor.class.getDeclaredMethod(
+								"processTraverseEvent", new Class[] {
+										int.class, ViewerRow.class,
+										TraverseEvent.class });
 						m.setAccessible(true);
-						m.invoke(editor, new Object[] { new Integer(cell.getColumnIndex()), cell.getViewerRow(), e });
+						m.invoke(
+								editor,
+								new Object[] {
+										new Integer(cell.getColumnIndex()),
+										cell.getViewerRow(), e });
 					} catch (SecurityException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -252,11 +266,13 @@ public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 		display.dispose();
 	}
 
-	private class MyContentProvider implements ITreeContentProvider {
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
 
 		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel) inputElement).child.toArray();
+		public MyModel[] getElements(MyModel inputElement) {
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
 		}
 
 		@Override
@@ -264,25 +280,26 @@ public class Snippet048TreeViewerTabWithCheckboxFor3_3 {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public MyModel[] getChildren(MyModel parentElement) {
 			return getElements(parentElement);
 		}
 
 		@Override
-		public Object getParent(Object element) {
+		public MyModel getParent(MyModel element) {
 			if (element == null) {
 				return null;
 			}
-			return ((MyModel) element).parent;
+			return element.parent;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel) element).child.size() > 0;
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
 		}
 
 	}

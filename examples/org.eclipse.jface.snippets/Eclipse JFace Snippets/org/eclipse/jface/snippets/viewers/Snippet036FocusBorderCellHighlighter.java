@@ -9,6 +9,7 @@
  *     Tom Schindl - initial API and implementation
  *     Lars Vogel (lars.vogel@gmail.com) - Bug 413427
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -42,7 +43,6 @@ import org.eclipse.swt.widgets.TableColumn;
 
 /**
  * Example of a different focus cell rendering with a simply focus border
- *
  */
 public class Snippet036FocusBorderCellHighlighter {
 
@@ -61,40 +61,41 @@ public class Snippet036FocusBorderCellHighlighter {
 		}
 	}
 
-	public class MyLabelProvider extends LabelProvider implements
-			ITableLabelProvider, ITableFontProvider, ITableColorProvider {
+	public class MyLabelProvider extends LabelProvider<MyModel> implements
+			ITableLabelProvider<MyModel>, ITableFontProvider<MyModel>,
+			ITableColorProvider<MyModel> {
 		FontRegistry registry = new FontRegistry();
 
 		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
+		public Image getColumnImage(MyModel element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public String getColumnText(Object element, int columnIndex) {
+		public String getColumnText(MyModel element, int columnIndex) {
 			return "Column " + columnIndex + " => " + element.toString();
 		}
 
 		@Override
-		public Font getFont(Object element, int columnIndex) {
+		public Font getFont(MyModel element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public Color getBackground(Object element, int columnIndex) {
+		public Color getBackground(MyModel element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public Color getForeground(Object element, int columnIndex) {
+		public Color getForeground(MyModel element, int columnIndex) {
 			return null;
 		}
 
 	}
 
 	public Snippet036FocusBorderCellHighlighter(Shell shell) {
-		final TableViewer v = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.setLabelProvider(new MyLabelProvider());
 		v.setContentProvider(ArrayContentProvider.getInstance());
 
@@ -119,7 +120,6 @@ public class Snippet036FocusBorderCellHighlighter {
 			}
 
 		});
-
 		v.setColumnProperties(new String[] { "1", "2", "3" });
 
 		TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(
@@ -136,12 +136,11 @@ public class Snippet036FocusBorderCellHighlighter {
 			}
 		};
 
-		int feature = ColumnViewerEditor.TABBING_HORIZONTAL
-				| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
-				| ColumnViewerEditor.TABBING_VERTICAL
-				| ColumnViewerEditor.KEYBOARD_ACTIVATION;
-
-		TableViewerEditor.create(v, focusCellManager, actSupport, feature);
+		TableViewerEditor.create(v, focusCellManager, actSupport,
+				ColumnViewerEditor.TABBING_HORIZONTAL
+						| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
+						| ColumnViewerEditor.TABBING_VERTICAL
+						| ColumnViewerEditor.KEYBOARD_ACTIVATION);
 
 		String[] columLabels = { "Column 1", "Column 2", "Column 3" };
 		for (String label : columLabels) {
@@ -161,7 +160,6 @@ public class Snippet036FocusBorderCellHighlighter {
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10; i++) {
 			elements.add(new MyModel(i));
 		}

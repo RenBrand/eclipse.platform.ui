@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -57,14 +58,14 @@ public class Snippet022TableViewerRefreshNoScroll {
 
 	public Snippet022TableViewerRefreshNoScroll(Shell shell) {
 		shell.setLayout(new GridLayout(2, false));
-		final TableViewer v = new TableViewer(shell, SWT.BORDER
+		final TableViewer<MyModel,List<MyModel>> v = new TableViewer<MyModel,List<MyModel>>(shell, SWT.BORDER
 				| SWT.FULL_SELECTION);
 
 		TableColumn column = new TableColumn(v.getTable(), SWT.NONE);
 		column.setWidth(200);
 
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setInput(createModel(100));
 		v.getTable().setLinesVisible(true);
 		v.getTable().setLayoutData(
@@ -123,7 +124,6 @@ public class Snippet022TableViewerRefreshNoScroll {
 
 	private List<MyModel> createModel(int size) {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < size; i++) {
 			elements.add(new MyModel(i));
 		}

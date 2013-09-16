@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -60,7 +61,8 @@ public class Snippet025TabEditing {
 		createColumnFor(viewer, "Column 2", 200);
 
 		viewer.setLabelProvider(new LabelProvider());
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		viewer.setContentProvider(ArrayContentProvider
+				.getInstance(MyModel.class));
 		viewer.setCellModifier(new ICellModifier() {
 
 			@Override
@@ -102,14 +104,13 @@ public class Snippet025TabEditing {
 		TableColumn tc = new TableColumn(viewer.getTable(), SWT.NONE);
 		tc.setWidth(width);
 		tc.setText(label);
-
 	}
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10; i++) {
 			elements.add(new MyModel(i));
+
 		}
 		return elements;
 	}
@@ -128,7 +129,6 @@ public class Snippet025TabEditing {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
-
 		display.dispose();
 
 	}

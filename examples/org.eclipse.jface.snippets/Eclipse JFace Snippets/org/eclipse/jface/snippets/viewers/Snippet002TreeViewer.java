@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 - 2013 Tom Schindl and others.
+ * Copyright (c) 2006, 2014 Tom Schindl and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Lars Vogel <Lars.Vogel@gmail.com> - Bug 414565
  *******************************************************************************/
 
@@ -29,11 +30,13 @@ import org.eclipse.swt.widgets.Shell;
  */
 
 public class Snippet002TreeViewer {
-	private class MyContentProvider implements ITreeContentProvider {
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
 
 		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel)inputElement).child.toArray();
+		public MyModel[] getElements(MyModel inputElement) {
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
 		}
 
 		@Override
@@ -42,27 +45,28 @@ public class Snippet002TreeViewer {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
 
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public MyModel[] getChildren(MyModel parentElement) {
 			return getElements(parentElement);
 		}
 
 		@Override
-		public Object getParent(Object element) {
-			if( element == null) {
+		public MyModel getParent(MyModel element) {
+			if (element == null) {
 				return null;
 			}
 
-			return ((MyModel)element).parent;
+			return element.parent;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel)element).child.size() > 0;
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
 		}
 
 	}
@@ -80,7 +84,7 @@ public class Snippet002TreeViewer {
 		@Override
 		public String toString() {
 			String rv = "Item ";
-			if( parent != null ) {
+			if (parent != null) {
 				rv = parent.toString() + ".";
 			}
 
@@ -91,23 +95,24 @@ public class Snippet002TreeViewer {
 	}
 
 	public Snippet002TreeViewer(Shell shell) {
-		final TreeViewer v = new TreeViewer(shell);
-		v.setLabelProvider(new LabelProvider());
+		final TreeViewer<MyModel, MyModel> v = new TreeViewer<MyModel, MyModel>(
+				shell);
+		v.setLabelProvider(new LabelProvider<MyModel>());
 		v.setContentProvider(new MyContentProvider());
 		v.setInput(createModel());
 	}
 
 	private MyModel createModel() {
 
-		MyModel root = new MyModel(0,null);
+		MyModel root = new MyModel(0, null);
 		root.counter = 0;
 
 		MyModel tmp;
-		for( int i = 1; i < 10; i++ ) {
+		for (int i = 1; i < 10; i++) {
 			tmp = new MyModel(i, root);
 			root.child.add(tmp);
-			for( int j = 1; j < i; j++ ) {
-				tmp.child.add(new MyModel(j,tmp));
+			for (int j = 1; j < i; j++) {
+				tmp.child.add(new MyModel(j, tmp));
 			}
 		}
 
@@ -115,16 +120,17 @@ public class Snippet002TreeViewer {
 	}
 
 	public static void main(String[] args) {
-		Display display = new Display ();
+		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 		new Snippet002TreeViewer(shell);
-		shell.open ();
+		shell.open();
 
-		while (!shell.isDisposed ()) {
-			if (!display.readAndDispatch ()) display.sleep ();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
 		}
 
-		display.dispose ();
+		display.dispose();
 	}
 }

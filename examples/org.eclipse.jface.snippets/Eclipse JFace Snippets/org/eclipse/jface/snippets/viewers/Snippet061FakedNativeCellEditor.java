@@ -10,6 +10,7 @@
  *     Florian Potschka <signalrauschen@gmail.com> - Bug 260061
  *     Alexander Ljungberg <siker@norwinter.com> - Bug 260061
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - Bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -52,7 +53,6 @@ import org.eclipse.swt.widgets.TreeItem;
 
 /**
  * A simple TreeViewer to demonstrate usage
- *
  */
 public class Snippet061FakedNativeCellEditor {
 
@@ -89,47 +89,13 @@ public class Snippet061FakedNativeCellEditor {
 		}
 	}
 
-	private class MyContentProvider implements ITreeContentProvider {
-
-		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((File) inputElement).child.toArray();
-		}
-
-		@Override
-		public void dispose() {
-		}
-
-		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-
-		@Override
-		public Object[] getChildren(Object parentElement) {
-			return getElements(parentElement);
-		}
-
-		@Override
-		public Object getParent(Object element) {
-			if (element == null) {
-				return null;
-			}
-			return ((File) element).parent;
-		}
-
-		@Override
-		public boolean hasChildren(Object element) {
-			return ((File) element).child.size() > 0;
-		}
-
-	}
-
 	public abstract class EmulatedNativeCheckBoxLabelProvider extends
-			OwnerDrawLabelProvider {
+			OwnerDrawLabelProvider<File, File> {
 		private static final String CHECKED_KEY = "CHECKED";
 		private static final String UNCHECK_KEY = "UNCHECKED";
 
-		public EmulatedNativeCheckBoxLabelProvider(ColumnViewer viewer) {
+		public EmulatedNativeCheckBoxLabelProvider(
+				ColumnViewer<File, File> viewer) {
 			if (JFaceResources.getImageRegistry().getDescriptor(CHECKED_KEY) == null) {
 				JFaceResources.getImageRegistry().put(UNCHECK_KEY,
 						makeShot(viewer.getControl(), false));
@@ -192,7 +158,7 @@ public class Snippet061FakedNativeCellEditor {
 			return img;
 		}
 
-		public Image getImage(Object element) {
+		public Image getImage(File element) {
 			if (isChecked(element)) {
 				return JFaceResources.getImageRegistry().get(CHECKED_KEY);
 			} else {
@@ -201,12 +167,12 @@ public class Snippet061FakedNativeCellEditor {
 		}
 
 		@Override
-		protected void measure(Event event, Object element) {
+		protected void measure(Event event, File element) {
 			event.height = getImage(element).getBounds().height;
 		}
 
 		@Override
-		protected void paint(Event event, Object element) {
+		protected void paint(Event event, File element) {
 
 			Image img = getImage(element);
 
@@ -237,12 +203,12 @@ public class Snippet061FakedNativeCellEditor {
 			}
 		}
 
-		protected abstract boolean isChecked(Object element);
+		protected abstract boolean isChecked(File element);
 	}
 
 	public Snippet061FakedNativeCellEditor(final Shell shell) {
-		final TreeViewer viewer = new TreeViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TreeViewer<File, File> viewer = new TreeViewer<File, File>(shell,
+				SWT.BORDER | SWT.FULL_SELECTION);
 		viewer.getTree().setLinesVisible(true);
 		viewer.getTree().setBackgroundMode(SWT.INHERIT_DEFAULT);
 		viewer.getTree().setHeaderVisible(true);
@@ -283,18 +249,18 @@ public class Snippet061FakedNativeCellEditor {
 				viewer.getTree());
 		booleanCellEditor.setChangeOnActivation(true);
 
-		TreeViewerColumn column = null;
+		TreeViewerColumn<File, File> column = null;
 
 		column = createColumnFor(viewer, SWT.NONE, "File");
-		column.setLabelProvider(new OwnerDrawLabelProvider() {
+		column.setLabelProvider(new OwnerDrawLabelProvider<File, File>() {
 
 			@Override
-			protected void measure(Event event, Object element) {
+			protected void measure(Event event, File element) {
 
 			}
 
 			@Override
-			protected void paint(Event event, Object element) {
+			protected void paint(Event event, File element) {
 				((TreeItem) event.item).setText(element.toString());
 			}
 
@@ -306,8 +272,8 @@ public class Snippet061FakedNativeCellEditor {
 		column.setLabelProvider(new EmulatedNativeCheckBoxLabelProvider(viewer) {
 
 			@Override
-			protected boolean isChecked(Object element) {
-				return ((File) element).read;
+			protected boolean isChecked(File element) {
+				return element.read;
 			}
 
 		});
@@ -317,8 +283,8 @@ public class Snippet061FakedNativeCellEditor {
 		column.setLabelProvider(new EmulatedNativeCheckBoxLabelProvider(viewer) {
 
 			@Override
-			protected boolean isChecked(Object element) {
-				return ((File) element).write;
+			protected boolean isChecked(File element) {
+				return element.write;
 			}
 
 		});
@@ -328,8 +294,8 @@ public class Snippet061FakedNativeCellEditor {
 		column.setLabelProvider(new EmulatedNativeCheckBoxLabelProvider(viewer) {
 
 			@Override
-			protected boolean isChecked(Object element) {
-				return ((File) element).execute;
+			protected boolean isChecked(File element) {
+				return element.execute;
 			}
 
 		});
@@ -340,9 +306,10 @@ public class Snippet061FakedNativeCellEditor {
 		viewer.setInput(createModel());
 	}
 
-	private TreeViewerColumn createColumnFor(TreeViewer viewer, int style,
-			String label) {
-		TreeViewerColumn column = new TreeViewerColumn(viewer, style);
+	private TreeViewerColumn<File, File> createColumnFor(
+			TreeViewer<File, File> viewer, int style, String label) {
+		TreeViewerColumn<File, File> column = new TreeViewerColumn<File, File>(
+				viewer, style);
 		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(true);
 		column.getColumn().setText(label);
@@ -386,6 +353,43 @@ public class Snippet061FakedNativeCellEditor {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private class MyContentProvider implements ITreeContentProvider<File, File> {
+
+		@Override
+		public File[] getElements(File inputElement) {
+			File[] files = new File[inputElement.child.size()];
+			return inputElement.child.toArray(files);
+		}
+
+		@Override
+		public void dispose() {
+		}
+
+		@Override
+		public void inputChanged(Viewer<? extends File> viewer, File oldInput,
+				File newInput) {
+		}
+
+		@Override
+		public File[] getChildren(File parentElement) {
+			return getElements(parentElement);
+		}
+
+		@Override
+		public File getParent(File element) {
+			if (element == null) {
+				return null;
+			}
+			return element.parent;
+		}
+
+		@Override
+		public boolean hasChildren(File element) {
+			return element.child.size() > 0;
+		}
+
 	}
 
 	public class File {

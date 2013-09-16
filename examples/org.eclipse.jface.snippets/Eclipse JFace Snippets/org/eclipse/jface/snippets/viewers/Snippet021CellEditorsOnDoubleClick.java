@@ -9,6 +9,7 @@
  *     Tom Schindl - initial API and implementation
  *     Dinko Ivanov - bug 164365
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -41,7 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 public class Snippet021CellEditorsOnDoubleClick {
 	private class MyCellModifier implements ICellModifier {
 
-		private TableViewer viewer;
+		private TableViewer<MyModel, List<MyModel>> viewer;
 
 		private boolean enabled;
 
@@ -49,8 +50,7 @@ public class Snippet021CellEditorsOnDoubleClick {
 			this.enabled = enabled;
 		}
 
-
-		public void setViewer(TableViewer viewer) {
+		public void setViewer(TableViewer<MyModel, List<MyModel>> viewer) {
 			this.viewer = viewer;
 		}
 
@@ -69,7 +69,7 @@ public class Snippet021CellEditorsOnDoubleClick {
 			TableItem item = (TableItem) element;
 			((MyModel) item.getData()).counter = Integer.parseInt(value
 					.toString());
-			viewer.update(item.getData(), null);
+			viewer.update((MyModel) item.getData(), null);
 		}
 	}
 
@@ -99,7 +99,8 @@ public class Snippet021CellEditorsOnDoubleClick {
 
 		});
 
-		final TableViewer v = new TableViewer(table);
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				table);
 
 		table.addListener(SWT.MouseDoubleClick, new Listener() {
 
@@ -116,7 +117,7 @@ public class Snippet021CellEditorsOnDoubleClick {
 
 				for (int i = 0; i < table.getColumnCount(); i++) {
 					if (item.getBounds(i).contains(event.x, event.y)) {
-						v.editElement(item.getData(), i);
+						v.editElement((MyModel) item.getData(), i);
 						modifier.setEnabled(false);
 						break;
 					}
@@ -130,8 +131,8 @@ public class Snippet021CellEditorsOnDoubleClick {
 		TableColumn column = new TableColumn(table, SWT.NONE);
 		column.setWidth(200);
 
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setCellModifier(modifier);
 		v.setColumnProperties(new String[] { "column1" });
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTable()) });

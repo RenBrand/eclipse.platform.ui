@@ -9,6 +9,7 @@
  *     Tom Schindl - initial API and implementation
  *     Lars Vogel <Lars.Vogel@gmail.com> - Bug 414565
  *     Jeanderson Candido <http://jeandersonbc.github.io> - 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -27,10 +28,8 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * A simple TableViewer to demonstrate the usage of a standard content provider
  * with a virtual table
- *
  */
 public class Snippet029VirtualTableViewer {
-
 
 	public class MyModel {
 		public int counter;
@@ -46,9 +45,10 @@ public class Snippet029VirtualTableViewer {
 	}
 
 	public Snippet029VirtualTableViewer(Shell shell) {
-		final TableViewer v = new TableViewer(shell, SWT.VIRTUAL);
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.VIRTUAL);
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setUseHashlookup(true);
 		v.setInput(createModel());
 		v.getTable().setLinesVisible(true);
@@ -56,7 +56,6 @@ public class Snippet029VirtualTableViewer {
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10000; i++) {
 			elements.add(new MyModel(i));
 		}

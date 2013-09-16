@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 Tom Schindl and others.
+ * Copyright (c) 2006, 2013 Tom Schindl and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,16 +7,19 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.OwnerDrawLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -37,50 +40,15 @@ import org.eclipse.swt.widgets.TableItem;
 public class Snippet051TableCenteredImage {
 	private static Image[] images;
 
-	private class MyContentProvider implements IStructuredContentProvider {
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
-		 */
-		@Override
-		public Object[] getElements(Object inputElement) {
-			return (MyModel[]) inputElement;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
-		 */
-		@Override
-		public void dispose() {
-
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer,
-		 *      java.lang.Object, java.lang.Object)
-		 */
-		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-
-		}
-
-	}
-
 	private abstract class CenterImageLabelProvider extends
-			OwnerDrawLabelProvider {
+			OwnerDrawLabelProvider<MyModel, List<MyModel>> {
 
 		@Override
-		protected void measure(Event event, Object element) {
+		protected void measure(Event event, MyModel element) {
 		}
 
 		@Override
-		protected void paint(Event event, Object element) {
+		protected void paint(Event event, MyModel element) {
 
 			Image img = getImage(element);
 
@@ -129,22 +97,23 @@ public class Snippet051TableCenteredImage {
 	}
 
 	public Snippet051TableCenteredImage(Shell shell) {
-		final TableViewer v = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
-		v.setContentProvider(new MyContentProvider());
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 
-		TableViewerColumn column = new TableViewerColumn(v, SWT.NONE);
+		TableViewerColumn<MyModel, List<MyModel>> column = new TableViewerColumn<MyModel, List<MyModel>>(
+				v, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setText("Column 1");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, List<MyModel>>() {
 
 			@Override
-			public String getText(Object element) {
+			public String getText(MyModel element) {
 				return "Column 1 => " + element.toString();
 			}
 		});
 
-		column = new TableViewerColumn(v, SWT.NONE);
+		column = new TableViewerColumn<MyModel, List<MyModel>>(v, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setText("Column 2");
 		column.setLabelProvider(new CenterImageLabelProvider() {
@@ -158,19 +127,17 @@ public class Snippet051TableCenteredImage {
 
 		// OwnerDrawLabelProvider.setUpOwnerDraw(v);
 
-		MyModel[] model = createModel();
+		List<MyModel> model = createModel();
 		v.setInput(model);
 		v.getTable().setLinesVisible(true);
 		v.getTable().setHeaderVisible(true);
 	}
 
-	private MyModel[] createModel() {
-		MyModel[] elements = new MyModel[10];
-
+	private List<MyModel> createModel() {
+		List<MyModel> elements = new ArrayList<MyModel>(10);
 		for (int i = 0; i < 10; i++) {
-			elements[i] = new MyModel(i);
+			elements.add(i, new MyModel(i));
 		}
-
 		return elements;
 	}
 

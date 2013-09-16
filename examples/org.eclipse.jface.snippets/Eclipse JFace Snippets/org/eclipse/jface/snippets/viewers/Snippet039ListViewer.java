@@ -9,6 +9,7 @@
  *     Tom Schindl - initial API and implementation
  *     Lars Vogel (lars.vogel@gmail.com) - Bug 413427
  *     Jeanderson Candido (http://jeandersonbc.github.io) - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -43,15 +44,15 @@ public class Snippet039ListViewer {
 	}
 
 	public Snippet039ListViewer(Shell shell) {
-		final ListViewer v = new ListViewer(shell, SWT.H_SCROLL | SWT.V_SCROLL);
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		final ListViewer<MyModel, List<MyModel>> v = new ListViewer<MyModel, List<MyModel>>(
+				shell, SWT.H_SCROLL | SWT.V_SCROLL);
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setInput(createModel());
 	}
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10; i++) {
 			elements.add(new MyModel(i));
 		}

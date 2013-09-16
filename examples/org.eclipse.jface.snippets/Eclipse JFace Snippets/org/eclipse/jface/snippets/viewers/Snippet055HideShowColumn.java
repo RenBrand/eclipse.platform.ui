@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
- *     Henrik Still <hendrik.still@gammas.de> - Bug 415875
+ *     Henrik Still <hendrik.still@gammas.de> - Bug 415875, Bug 417676
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
  *******************************************************************************/
 
@@ -82,42 +82,7 @@ public class Snippet055HideShowColumn {
 		}
 	}
 
-	class MyContentProvider implements ITreeContentProvider {
-
-		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel) inputElement).child.toArray();
-		}
-
-		@Override
-		public void dispose() {
-		}
-
-		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-
-		@Override
-		public Object[] getChildren(Object parentElement) {
-			return getElements(parentElement);
-		}
-
-		@Override
-		public Object getParent(Object element) {
-			if (element == null) {
-				return null;
-			}
-			return ((MyModel) element).parent;
-		}
-
-		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel) element).child.size() > 0;
-		}
-
-	}
-
-	class MyColumnLabelProvider extends ColumnLabelProvider {
+	class MyColumnLabelProvider extends ColumnLabelProvider<MyModel, MyModel> {
 
 		private String prefix;
 
@@ -126,15 +91,15 @@ public class Snippet055HideShowColumn {
 		}
 
 		@Override
-		public String getText(Object element) {
-			return prefix + " => " + element.toString();
+		public String getText(MyModel element) {
+			return prefix + " => " + element;
 		}
 
 	}
 
 	public Snippet055HideShowColumn(final Shell shell) {
-		final TreeViewer v = new TreeViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TreeViewer<MyModel, MyModel> v = new TreeViewer<MyModel, MyModel>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.getTree().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		v.getTree().setLinesVisible(true);
@@ -163,8 +128,8 @@ public class Snippet055HideShowColumn {
 		final TextCellEditor textCellEditor = new TextCellEditor(v.getTree());
 
 		createColumnFor(v, "Column 1", textCellEditor);
-		final TreeViewerColumn column_2 = createColumnFor(v, "Column 2",
-				textCellEditor);
+		final TreeViewerColumn<MyModel, MyModel> column_2 = createColumnFor(v,
+				"Column 2", textCellEditor);
 		createColumnFor(v, "Column 3", textCellEditor);
 
 		v.setContentProvider(new MyContentProvider());
@@ -175,7 +140,7 @@ public class Snippet055HideShowColumn {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				MyModel root = (MyModel) v.getInput();
+				MyModel root = v.getInput();
 				TreePath path = new TreePath(new Object[] { root,
 						root.child.get(1), root.child.get(1).child.get(0) });
 				v.editElement(path, 0);
@@ -192,14 +157,17 @@ public class Snippet055HideShowColumn {
 		});
 	}
 
-	private TreeViewerColumn createColumnFor(final TreeViewer v, String label,
+	private TreeViewerColumn<MyModel, MyModel> createColumnFor(
+			final TreeViewer<MyModel, MyModel> v, String label,
 			TextCellEditor textCellEditor) {
-		TreeViewerColumn column = new TreeViewerColumn(v, SWT.NONE);
+		TreeViewerColumn<MyModel, MyModel> column = new TreeViewerColumn<MyModel, MyModel>(
+				v, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(true);
 		column.getColumn().setText(label);
 		column.setLabelProvider(new MyColumnLabelProvider(label));
 		column.setEditingSupport(new MyEditingSupport(v, v, textCellEditor));
+
 		return column;
 	}
 
@@ -208,29 +176,6 @@ public class Snippet055HideShowColumn {
 		b.setText(label);
 		b.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		return b;
-	}
-
-	public class MyModel {
-
-		public MyModel parent;
-		public List<MyModel> child = new ArrayList<MyModel>();
-		public int counter;
-
-		public MyModel(int counter, MyModel parent) {
-			this.parent = parent;
-			this.counter = counter;
-		}
-
-		@Override
-		public String toString() {
-			String rv = "Item ";
-			if (parent != null) {
-				rv = parent.toString() + ".";
-			}
-			rv += counter;
-
-			return rv;
-		}
 	}
 
 	private MyModel createModel() {
@@ -263,6 +208,110 @@ public class Snippet055HideShowColumn {
 				display.sleep();
 		}
 		display.dispose();
+	}
+
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.eclipse.jface.viewers.IStructuredContentProvider#getElements(
+		 * java.lang.Object)
+		 */
+		@Override
+		public MyModel[] getElements(MyModel inputElement) {
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
+		 */
+		@Override
+		public void dispose() {
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse
+		 * .jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+		 */
+		@Override
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang
+		 * .Object)
+		 */
+		@Override
+		public MyModel[] getChildren(MyModel parentElement) {
+			return getElements(parentElement);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang
+		 * .Object)
+		 */
+		@Override
+		public MyModel getParent(MyModel element) {
+			if (element == null) {
+				return null;
+			}
+
+			return element.parent;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang
+		 * .Object)
+		 */
+		@Override
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
+		}
+
+	}
+
+	public class MyModel {
+		public MyModel parent;
+		public List<MyModel> child = new ArrayList<MyModel>();
+		public int counter;
+
+		public MyModel(int counter, MyModel parent) {
+			this.parent = parent;
+			this.counter = counter;
+		}
+
+		@Override
+		public String toString() {
+			String rv = "Item ";
+			if (parent != null) {
+				rv = parent.toString() + ".";
+			}
+
+			rv += counter;
+
+			return rv;
+		}
 	}
 
 }

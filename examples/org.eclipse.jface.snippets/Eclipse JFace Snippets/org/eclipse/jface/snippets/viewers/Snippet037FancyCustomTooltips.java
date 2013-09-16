@@ -9,6 +9,7 @@
  *     Tom Schindl - initial API and implementation
  *     IBM - Improvement for Bug 159625 [Snippets] Update Snippet011CustomTooltips to reflect new API
  *     Lars Vogel (lars.vogel@gmail.com) - Bug 413427
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -39,7 +40,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class Snippet037FancyCustomTooltips {
 
-	private static class FancyToolTipSupport extends ColumnViewerToolTipSupport {
+	private static class FancyToolTipSupport extends
+			ColumnViewerToolTipSupport<String, Object> {
 
 		protected FancyToolTipSupport(ColumnViewer viewer, int style,
 				boolean manualActivation) {

@@ -7,18 +7,21 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Lars Vogel <Lars.Vogel@gmail.com> - Bug 414565
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ICellModifier;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
@@ -30,33 +33,6 @@ import org.eclipse.swt.widgets.TableItem;
  *
  */
 public class Snippet009CellEditors {
-	private class MyContentProvider implements IStructuredContentProvider {
-
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
-		 */
-		@Override
-		public Object[] getElements(Object inputElement) {
-			return (MyModel[])inputElement;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
-		 */
-		@Override
-		public void dispose() {
-
-		}
-
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
-		 */
-		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-
-		}
-
-	}
 
 	public class MyModel {
 		public int counter;
@@ -72,52 +48,43 @@ public class Snippet009CellEditors {
 	}
 
 	public Snippet009CellEditors(Shell shell) {
-		final TableViewer v = new TableViewer(shell,SWT.BORDER|SWT.FULL_SELECTION);
-		v.setLabelProvider(new LabelProvider());
-		v.setContentProvider(new MyContentProvider());
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
+		v.setLabelProvider(new LabelProvider<MyModel>());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setCellModifier(new ICellModifier() {
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ICellModifier#canModify(java.lang.Object, java.lang.String)
-			 */
 			@Override
 			public boolean canModify(Object element, String property) {
-				return ((MyModel)element).counter % 2 == 0;
+				return ((MyModel) element).counter % 2 == 0;
 			}
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ICellModifier#getValue(java.lang.Object, java.lang.String)
-			 */
 			@Override
 			public Object getValue(Object element, String property) {
-				return ((MyModel)element).counter + "";
+				return ((MyModel) element).counter + "";
 			}
 
-			/* (non-Javadoc)
-			 * @see org.eclipse.jface.viewers.ICellModifier#modify(java.lang.Object, java.lang.String, java.lang.Object)
-			 */
 			@Override
 			public void modify(Object element, String property, Object value) {
-				TableItem item = (TableItem)element;
-				((MyModel)item.getData()).counter = Integer.parseInt(value.toString());
-				v.update(item.getData(), null);
+				TableItem item = (TableItem) element;
+				((MyModel) item.getData()).counter = Integer.parseInt(value
+						.toString());
+				v.update((MyModel) item.getData(), null);
 			}
 
 		});
 		v.setColumnProperties(new String[] { "column1" });
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTable()) });
 
-
-		MyModel[] model = createModel();
+		List<MyModel> model = createModel();
 		v.setInput(model);
 		v.getTable().setLinesVisible(true);
 	}
 
-	private MyModel[] createModel() {
-		MyModel[] elements = new MyModel[10];
-
-		for( int i = 0; i < 10; i++ ) {
-			elements[i] = new MyModel(i);
+	private List<MyModel> createModel() {
+		List<MyModel> elements = new ArrayList<MyModel>(10);
+		for (int i = 0; i < 10; i++) {
+			elements.add(i, new MyModel(i));
 		}
 
 		return elements;
@@ -127,17 +94,18 @@ public class Snippet009CellEditors {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Display display = new Display ();
+		Display display = new Display();
 		Shell shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 		new Snippet009CellEditors(shell);
-		shell.open ();
+		shell.open();
 
-		while (!shell.isDisposed ()) {
-			if (!display.readAndDispatch ()) display.sleep ();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
 		}
 
-		display.dispose ();
+		display.dispose();
 
 	}
 

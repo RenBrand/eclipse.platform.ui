@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
  *******************************************************************************/
 
@@ -82,24 +83,23 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 		}
 	}
 
-	public class MyLabelProvider extends LabelProvider implements
-			ITableLabelProvider {
-		private TableViewer viewer;
+	public class MyLabelProvider extends LabelProvider<Person> implements
+			ITableLabelProvider<Person> {
+		private TableViewer<Person, List<Person>> viewer;
 
-		public MyLabelProvider(TableViewer viewer) {
+		public MyLabelProvider(TableViewer<Person, List<Person>> viewer) {
 			this.viewer = viewer;
 		}
 
 		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
+		public Image getColumnImage(Person element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public String getColumnText(Object element, int columnIndex) {
-			return ((Person) element)
-					.getValue(viewer.getColumnProperties()[columnIndex]
-							.toString());
+		public String getColumnText(Person element, int columnIndex) {
+			return element.getValue(viewer.getColumnProperties()[columnIndex]
+					.toString());
 		}
 	}
 
@@ -132,10 +132,10 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 	private int activeColumn = -1;
 
 	public Snippet018TableViewerAddRemoveColumnsWithEditing(Shell shell) {
-		final TableViewer v = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TableViewer<Person, List<Person>> v = new TableViewer<Person, List<Person>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.setLabelProvider(new MyLabelProvider(v));
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setContentProvider(ArrayContentProvider.getInstance(Person.class));
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTable()),
 				new TextCellEditor(v.getTable()),
 				new TextCellEditor(v.getTable()) });
@@ -159,7 +159,8 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 		triggerColumnSelectedColumn(v);
 	}
 
-	private void triggerColumnSelectedColumn(final TableViewer v) {
+	private void triggerColumnSelectedColumn(
+			final TableViewer<Person, List<Person>> v) {
 		v.getTable().addMouseListener(new MouseAdapter() {
 
 			@Override
@@ -177,7 +178,7 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 		});
 	}
 
-	private void addMenu(final TableViewer v) {
+	private void addMenu(final TableViewer<Person, List<Person>> v) {
 		final MenuManager mgr = new MenuManager();
 
 		final Action insertEmailBefore = new Action("Insert E-Mail before") {
@@ -219,7 +220,7 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 		v.getControl().setMenu(mgr.createContextMenu(v.getControl()));
 	}
 
-	private void removeEmailColumn(TableViewer v) {
+	private void removeEmailColumn(TableViewer<Person, List<Person>> v) {
 		int emailIndex = -1;
 		for (int i = 0; i < v.getColumnProperties().length; i++) {
 			if (v.getColumnProperties()[i].toString().equals("email")) {
@@ -246,7 +247,8 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 		v.refresh();
 	}
 
-	private void addEmailColumn(TableViewer v, int columnIndex) {
+	private void addEmailColumn(TableViewer<Person, List<Person>> v,
+			int columnIndex) {
 		List<CellEditor> list = new ArrayList<CellEditor>(Arrays.asList(v
 				.getCellEditors()));
 		list.add(columnIndex, new TextCellEditor(v.getTable()));

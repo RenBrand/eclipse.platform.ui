@@ -8,6 +8,7 @@
  * Contributors:
  *     Marcel <emmpeegee@gmail.com> - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 package org.eclipse.jface.snippets.viewers;
 
@@ -40,13 +41,15 @@ import org.eclipse.swt.widgets.TreeItem;
  */
 public class Snippet053StartEditorWithContextMenu implements SelectionListener {
 
-	private TreeViewer viewer;
+	private TreeViewer<MyModel, MyModel> viewer;
 
-	private class MyContentProvider implements ITreeContentProvider {
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
 
 		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel) inputElement).child.toArray();
+		public MyModel[] getElements(MyModel inputElement) {
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
 		}
 
 		@Override
@@ -55,26 +58,27 @@ public class Snippet053StartEditorWithContextMenu implements SelectionListener {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
 
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public MyModel[] getChildren(MyModel parentElement) {
 			return getElements(parentElement);
 		}
 
 		@Override
-		public Object getParent(Object element) {
+		public MyModel getParent(MyModel element) {
 			if (element == null) {
 				return null;
 			}
-			return ((MyModel) element).parent;
+			return element.parent;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel) element).child.size() > 0;
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
 		}
 
 	}
@@ -102,7 +106,7 @@ public class Snippet053StartEditorWithContextMenu implements SelectionListener {
 	}
 
 	public Snippet053StartEditorWithContextMenu(Shell shell) {
-		viewer = new TreeViewer(shell, SWT.BORDER);
+		viewer = new TreeViewer<MyModel, MyModel>(shell, SWT.BORDER);
 		viewer.setContentProvider(new MyContentProvider());
 		viewer.setCellEditors(new CellEditor[] { new TextCellEditor(viewer
 				.getTree()) });
@@ -124,7 +128,7 @@ public class Snippet053StartEditorWithContextMenu implements SelectionListener {
 				TreeItem item = (TreeItem) element;
 				((MyModel) item.getData()).counter = Integer.parseInt(value
 						.toString());
-				viewer.update(item.getData(), null);
+				viewer.update((MyModel) item.getData(), null);
 			}
 
 		});

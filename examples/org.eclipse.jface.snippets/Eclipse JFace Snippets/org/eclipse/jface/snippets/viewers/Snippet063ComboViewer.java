@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014 Hendrik Still and others.
+ * Copyright (c) 2013, 2014 Hendrik Still and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Hendrik Still<hendrik.still@gammas.de> - initial implementation
+ *     Hendrik Still<hendrik.still@gammas.de> - initial implementation, bug 417676
  *     Lars Vogel <lars.vogel@gmail.com> - Bug 414565
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
  *******************************************************************************/
@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Shell;
 
 /**
  * A simple ComboViewer to demonstrate usage
- *
  */
 
 public class Snippet063ComboViewer {
@@ -54,7 +53,8 @@ public class Snippet063ComboViewer {
 
 		final Label l = new Label(shell, SWT.None);
 		l.setText("Choose Item:");
-		final ComboViewer<MyModel,List<MyModel>> v = new ComboViewer<MyModel,List<MyModel>>(shell);
+		final ComboViewer<MyModel, List<MyModel>> v = new ComboViewer<MyModel, List<MyModel>>(
+				shell);
 		v.setLabelProvider(new LabelProvider<MyModel>());
 		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 

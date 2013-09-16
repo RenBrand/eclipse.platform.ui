@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl<tom.schindl@bestsolution.at> - initial API and implementation
  *     Wayne Beaton - bug 185540
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Lars Vogel (lars.vogel@gmail.com) - Bug 413427
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
  *******************************************************************************/
@@ -32,8 +33,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
 /**
- * Snippet to present editor different CellEditors within one column in 3.2
- * for 3.3 and above please use the new EditingSupport class
+ * Snippet to present editor different CellEditors within one column in 3.2 for
+ * 3.3 and above please use the new EditingSupport class
  *
  * @author Tom Schindl <tom.schindl@bestsolution.at>
  *
@@ -44,17 +45,16 @@ public class Snippet034CellEditorPerRow {
 
 		private CellEditor dropDownEditor;
 
-		public MyEditingSupport(TableViewer viewer) {
+		public MyEditingSupport(TableViewer<MyModel, List<MyModel>> viewer) {
 			super(viewer);
 			textEditor = new TextCellEditor(viewer.getTable());
 
 			String[] elements = new String[10];
 
 			for (int i = 0; i < 10; i++) {
-				elements[i] = i+"";
+				elements[i] = i + "";
 			}
-
-			dropDownEditor = new ComboBoxCellEditor(viewer.getTable(),elements);
+			dropDownEditor = new ComboBoxCellEditor(viewer.getTable(), elements);
 		}
 
 		@Override
@@ -64,7 +64,7 @@ public class Snippet034CellEditorPerRow {
 
 		@Override
 		protected CellEditor getCellEditor(Object element) {
-			if( element instanceof MyModel2 ) {
+			if (element instanceof MyModel2) {
 				return dropDownEditor;
 			} else {
 				return textEditor;
@@ -73,7 +73,7 @@ public class Snippet034CellEditorPerRow {
 
 		@Override
 		protected Object getValue(Object element) {
-			if( element instanceof MyModel2 ) {
+			if (element instanceof MyModel2) {
 				return new Integer(((MyModel) element).counter);
 			} else {
 				return ((MyModel) element).counter + "";
@@ -82,7 +82,7 @@ public class Snippet034CellEditorPerRow {
 
 		@Override
 		protected void setValue(Object element, Object value) {
-			((MyModel)element).counter = Integer.parseInt(value.toString());
+			((MyModel) element).counter = Integer.parseInt(value.toString());
 			getViewer().update(element, null);
 		}
 
@@ -116,22 +116,24 @@ public class Snippet034CellEditorPerRow {
 	public Snippet034CellEditorPerRow(Shell shell) {
 		final Table table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION);
 
-		final TableViewer v = new TableViewer(table);
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				table);
 		v.getTable().setLinesVisible(true);
 
-		TableViewerColumn column = new TableViewerColumn(v, SWT.NONE);
+		TableViewerColumn<MyModel, List<MyModel>> column = new TableViewerColumn<MyModel, List<MyModel>>(
+				v, SWT.NONE);
 		column.getColumn().setWidth(200);
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, List<MyModel>>() {
 
 			@Override
-			public String getText(Object element) {
+			public String getText(MyModel element) {
 				return element.toString();
 			}
 
 		});
 
 		column.setEditingSupport(new MyEditingSupport(v));
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 		v.setInput(createModel());
 	}
 

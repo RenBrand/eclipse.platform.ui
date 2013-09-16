@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -47,8 +48,8 @@ public class Snippet026TreeViewerTabEditing {
 	public Snippet026TreeViewerTabEditing(final Shell shell) {
 		Button b = new Button(shell, SWT.PUSH);
 		b.setText("Remove column");
-		final TreeViewer v = new TreeViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TreeViewer<MyModel, MyModel> v = new TreeViewer<MyModel, MyModel>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.getTree().setLinesVisible(true);
 		v.getTree().setHeaderVisible(true);
 		b.addSelectionListener(new SelectionListener() {
@@ -91,7 +92,8 @@ public class Snippet026TreeViewerTabEditing {
 		String[] labelPrefix = { "Column 1 => ", "Column 2 => ", "Column 3 => " };
 
 		for (int i = 0; i < columLabels.length; i++) {
-			TreeViewerColumn column = new TreeViewerColumn(v, SWT.NONE);
+			TreeViewerColumn<MyModel, MyModel> column = new TreeViewerColumn<MyModel, MyModel>(
+					v, SWT.NONE);
 			column.getColumn().setWidth(200);
 			column.getColumn().setMoveable(true);
 			column.getColumn().setText(columLabels[i]);
@@ -102,11 +104,12 @@ public class Snippet026TreeViewerTabEditing {
 		v.setInput(createModel());
 	}
 
-	private ColumnLabelProvider createColumnLabelProvider(final String prefix) {
-		return new ColumnLabelProvider() {
+	private ColumnLabelProvider<MyModel, MyModel> createColumnLabelProvider(
+			final String prefix) {
+		return new ColumnLabelProvider<MyModel, MyModel>() {
 
 			@Override
-			public String getText(Object element) {
+			public String getText(MyModel element) {
 				return prefix + element.toString();
 			}
 
@@ -135,6 +138,7 @@ public class Snippet026TreeViewerTabEditing {
 			protected void setValue(Object element, Object value) {
 				((MyModel) element).counter = Integer
 						.parseInt(value.toString());
+				viewer.update(element, null);
 				viewer.update(element, null);
 			}
 		};
@@ -172,11 +176,13 @@ public class Snippet026TreeViewerTabEditing {
 		display.dispose();
 	}
 
-	private class MyContentProvider implements ITreeContentProvider {
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
 
 		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel) inputElement).child.toArray();
+		public MyModel[] getElements(MyModel inputElement) {
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
 		}
 
 		@Override
@@ -184,25 +190,27 @@ public class Snippet026TreeViewerTabEditing {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
+
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public MyModel[] getChildren(MyModel parentElement) {
 			return getElements(parentElement);
 		}
 
 		@Override
-		public Object getParent(Object element) {
+		public MyModel getParent(MyModel element) {
 			if (element == null) {
 				return null;
 			}
-			return ((MyModel) element).parent;
+			return element.parent;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel) element).child.size() > 0;
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
 		}
 
 	}

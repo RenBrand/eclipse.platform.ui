@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2006, 2014 Tom Schindl and others.
+ * Copyright (c) 2006, 2013 Tom Schindl and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +9,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -60,17 +62,19 @@ public class Snippet054NativeControlsInViewers {
 	}
 
 	public Snippet054NativeControlsInViewers(Shell shell) {
-		final TableViewer viewer = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		final TableViewer<MyModel, List<MyModel>> viewer = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
+		viewer.setContentProvider(ArrayContentProvider
+				.getInstance(MyModel.class));
 		viewer.getTable().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
-		TableViewerColumn column = createColumnFor(viewer, "Column 1");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		TableViewerColumn<MyModel, List<MyModel>> column = createColumnFor(
+				viewer, "Column 1");
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, List<MyModel>>() {
 
 			@Override
-			public String getText(Object element) {
+			public String getText(MyModel element) {
 				return element.toString();
 			}
 
@@ -104,11 +108,11 @@ public class Snippet054NativeControlsInViewers {
 		});
 	}
 
-	private CellLabelProvider createCellLabelProvider() {
-		return new CellLabelProvider() {
+	private CellLabelProvider<MyModel, List<MyModel>> createCellLabelProvider() {
+		return new CellLabelProvider<MyModel, List<MyModel>>() {
 
 			@Override
-			public void update(ViewerCell cell) {
+			public void update(ViewerCell<MyModel> cell) {
 				final TableItem item = (TableItem) cell.getItem();
 				DisposeListener listener = new DisposeListener() {
 
@@ -164,9 +168,10 @@ public class Snippet054NativeControlsInViewers {
 		return b;
 	}
 
-	private TableViewerColumn createColumnFor(final TableViewer viewer,
-			String columnLabel) {
-		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+	private TableViewerColumn<MyModel, List<MyModel>> createColumnFor(
+			final TableViewer<MyModel, List<MyModel>> viewer, String columnLabel) {
+		TableViewerColumn<MyModel, List<MyModel>> column = new TableViewerColumn<MyModel, List<MyModel>>(
+				viewer, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setText(columnLabel);
 		return column;
@@ -174,7 +179,6 @@ public class Snippet054NativeControlsInViewers {
 
 	private List<MyModel> createModel(int amount) {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < amount; i++) {
 			elements.add(new MyModel(i));
 		}

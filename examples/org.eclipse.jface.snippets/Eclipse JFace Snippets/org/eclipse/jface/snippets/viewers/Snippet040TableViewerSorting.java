@@ -7,11 +7,15 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Lars Vogel (lars.vogel@gmail.com) - Bug 413427
  *     Jeanderson Candido (http://jeandersonbc.github.io) - Bug 414565
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -54,7 +58,7 @@ public class Snippet040TableViewerSorting {
 	protected abstract class AbstractEditingSupport extends EditingSupport {
 		private TextCellEditor editor;
 
-		public AbstractEditingSupport(TableViewer viewer) {
+		public AbstractEditingSupport(TableViewer<Person, List<Person>> viewer) {
 			super(viewer);
 			this.editor = new TextCellEditor(viewer.getTable());
 		}
@@ -79,16 +83,19 @@ public class Snippet040TableViewerSorting {
 	}
 
 	public Snippet040TableViewerSorting(Shell shell) {
-		TableViewer viewer = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
 
-		TableViewerColumn column = createColumnFor(viewer, "Givenname");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		TableViewer<Person, List<Person>> viewer = new TableViewer<Person, List<Person>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
+		viewer.setContentProvider(ArrayContentProvider
+				.getInstance(Person.class));
+
+		TableViewerColumn<Person, List<Person>> column = createColumnFor(
+				viewer, "Givenname");
+		column.setLabelProvider(new ColumnLabelProvider<Person, List<Person>>() {
 
 			@Override
-			public String getText(Object element) {
-				return ((Person) element).givenname;
+			public String getText(Person element) {
+				return element.givenname;
 			}
 		});
 
@@ -118,11 +125,11 @@ public class Snippet040TableViewerSorting {
 		};
 
 		column = createColumnFor(viewer, "Surname");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<Person, List<Person>>() {
 
 			@Override
-			public String getText(Object element) {
-				return ((Person) element).surname;
+			public String getText(Person element) {
+				return element.surname;
 			}
 
 		});
@@ -153,11 +160,11 @@ public class Snippet040TableViewerSorting {
 		};
 
 		column = createColumnFor(viewer, "E-Mail");
-		column.setLabelProvider(new ColumnLabelProvider() {
+		column.setLabelProvider(new ColumnLabelProvider<Person, List<Person>>() {
 
 			@Override
-			public String getText(Object element) {
-				return ((Person) element).email;
+			public String getText(Person element) {
+				return element.email;
 			}
 
 		});
@@ -193,23 +200,26 @@ public class Snippet040TableViewerSorting {
 		cSorter.setSorter(cSorter, ColumnViewerSorter.ASC);
 	}
 
-	private TableViewerColumn createColumnFor(TableViewer viewer, String label) {
-		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+	private TableViewerColumn<Person, List<Person>> createColumnFor(
+			TableViewer<Person, List<Person>> viewer, String label) {
+		TableViewerColumn<Person, List<Person>> column = new TableViewerColumn<Person, List<Person>>(
+				viewer, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setText(label);
 		column.getColumn().setMoveable(true);
+
 		return column;
 	}
 
-	private Person[] createModel() {
-		return new Person[] {
-				new Person("Tom", "Schindl", "tom.schindl@bestsolution.at"),
-				new Person("Boris", "Bokowski", "Boris_Bokowski@ca.ibm.com"),
-				new Person("Tod", "Creasey", "Tod_Creasey@ca.ibm.com"),
-				new Person("Wayne", "Beaton", "wayne@eclipse.org"),
-				new Person("Jeanderson", "Candido", "jeandersonbc@gmail.com"),
-				new Person("Lars", "Vogel", "Lars.Vogel@gmail.com"),
-				new Person("Hendrik", "Still", "hendrik.still@gammas.de") };
+	private List<Person> createModel() {
+		return Arrays.asList(new Person("Tom", "Schindl",
+				"tom.schindl@bestsolution.at"), new Person("Boris", "Bokowski",
+				"Boris_Bokowski@ca.ibm.com"), new Person("Tod", "Creasey",
+				"Tod_Creasey@ca.ibm.com"), new Person("Wayne", "Beaton",
+				"wayne@eclipse.org"), new Person("Jeanderson", "Candido",
+				"jeandersonbc@gmail.com"), new Person("Lars", "Vogel",
+				"Lars.Vogel@gmail.com"), new Person("Hendrik", "Still",
+				"hendrik.still@gammas.de"));
 	}
 
 	private static abstract class ColumnViewerSorter extends ViewerComparator {
@@ -219,10 +229,11 @@ public class Snippet040TableViewerSorting {
 		public static final int DESC = -1;
 
 		private int direction = 0;
-		private TableViewerColumn column;
-		private ColumnViewer viewer;
+		private TableViewerColumn<Person, List<Person>> column;
+		private ColumnViewer<Person, List<Person>> viewer;
 
-		public ColumnViewerSorter(ColumnViewer viewer, TableViewerColumn column) {
+		public ColumnViewerSorter(ColumnViewer<Person, List<Person>> viewer,
+				TableViewerColumn<Person, List<Person>> column) {
 			this.column = column;
 			this.viewer = viewer;
 			SelectionAdapter selectionAdapter = createSelectionAdapter();

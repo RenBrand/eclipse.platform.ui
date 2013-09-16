@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -58,23 +59,24 @@ public class Snippet045TableViewerFillFromBackgroundThread {
 		}
 	}
 
-	public class MyLabelProvider extends LabelProvider implements
-			ITableLabelProvider, ITableFontProvider, ITableColorProvider {
+	public class MyLabelProvider extends LabelProvider<MyModel> implements
+			ITableLabelProvider<MyModel>, ITableFontProvider<MyModel>,
+			ITableColorProvider<MyModel> {
 		FontRegistry registry = new FontRegistry();
 
 		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
+		public Image getColumnImage(MyModel element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public String getColumnText(Object element, int columnIndex) {
+		public String getColumnText(MyModel element, int columnIndex) {
 			return "Column " + columnIndex + " => " + element.toString();
 		}
 
 		@Override
-		public Font getFont(Object element, int columnIndex) {
-			if (((MyModel) element).counter % 2 == 0) {
+		public Font getFont(MyModel element, int columnIndex) {
+			if (element.counter % 2 == 0) {
 				return registry.getBold(Display.getCurrent().getSystemFont()
 						.getFontData()[0].getName());
 			}
@@ -82,16 +84,16 @@ public class Snippet045TableViewerFillFromBackgroundThread {
 		}
 
 		@Override
-		public Color getBackground(Object element, int columnIndex) {
-			if (((MyModel) element).counter % 2 == 0) {
+		public Color getBackground(MyModel element, int columnIndex) {
+			if (element.counter % 2 == 0) {
 				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 			}
 			return null;
 		}
 
 		@Override
-		public Color getForeground(Object element, int columnIndex) {
-			if (((MyModel) element).counter % 2 == 1) {
+		public Color getForeground(MyModel element, int columnIndex) {
+			if (element.counter % 2 == 1) {
 				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 			}
 			return null;
@@ -100,10 +102,10 @@ public class Snippet045TableViewerFillFromBackgroundThread {
 	}
 
 	public Snippet045TableViewerFillFromBackgroundThread(final Shell shell) {
-		final TableViewer v = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.setLabelProvider(new MyLabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 
 		TableColumn column = new TableColumn(v.getTable(), SWT.NONE);
 		column.setWidth(200);
@@ -115,12 +117,11 @@ public class Snippet045TableViewerFillFromBackgroundThread {
 
 		final List<MyModel> model = new ArrayList<MyModel>();
 		v.setInput(model);
-		v.setComparator(new ViewerComparator() {
+		v.setComparator(new ViewerComparator<MyModel, List<MyModel>>() {
 			@Override
-			public int compare(Viewer viewer, Object e1, Object e2) {
-				MyModel m1 = (MyModel) e1;
-				MyModel m2 = (MyModel) e2;
-				return m2.counter - m1.counter;
+			public int compare(Viewer<List<MyModel>> viewer, MyModel e1,
+					MyModel e2) {
+				return e2.counter - e1.counter;
 			}
 
 		});

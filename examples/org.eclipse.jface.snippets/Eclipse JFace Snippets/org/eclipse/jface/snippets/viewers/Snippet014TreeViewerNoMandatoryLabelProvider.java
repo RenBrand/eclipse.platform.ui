@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *     Lars Vogel <Lars.Vogel@gmail.com> - Bug 414565
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
  *******************************************************************************/
@@ -35,14 +36,15 @@ import org.eclipse.swt.widgets.TreeColumn;
 
 /**
  * A simple TreeViewer to demonstrate usage
- *
  */
 public class Snippet014TreeViewerNoMandatoryLabelProvider {
-	private class MyContentProvider implements ITreeContentProvider {
+	private class MyContentProvider implements
+			ITreeContentProvider<MyModel, MyModel> {
 
 		@Override
-		public Object[] getElements(Object inputElement) {
-			return ((MyModel) inputElement).child.toArray();
+		public MyModel[] getElements(MyModel inputElement) {
+			MyModel[] myModels = new MyModel[inputElement.child.size()];
+			return inputElement.child.toArray(myModels);
 		}
 
 		@Override
@@ -51,36 +53,34 @@ public class Snippet014TreeViewerNoMandatoryLabelProvider {
 		}
 
 		@Override
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer<? extends MyModel> viewer,
+				MyModel oldInput, MyModel newInput) {
 
 		}
 
 		@Override
-		public Object[] getChildren(Object parentElement) {
+		public MyModel[] getChildren(MyModel parentElement) {
 			return getElements(parentElement);
 		}
 
 		@Override
-		public Object getParent(Object element) {
+		public MyModel getParent(MyModel element) {
 			if (element == null) {
 				return null;
 			}
-
-			return ((MyModel) element).parent;
+			return element.parent;
 		}
 
 		@Override
-		public boolean hasChildren(Object element) {
-			return ((MyModel) element).child.size() > 0;
+		public boolean hasChildren(MyModel element) {
+			return element.child.size() > 0;
 		}
 
 	}
 
 	public class MyModel {
 		public MyModel parent;
-
 		public List<MyModel> child = new ArrayList<MyModel>();
-
 		public int counter;
 
 		public MyModel(int counter, MyModel parent) {
@@ -101,23 +101,24 @@ public class Snippet014TreeViewerNoMandatoryLabelProvider {
 		}
 	}
 
-	public class MyLabelProvider extends LabelProvider implements
-			ITableLabelProvider, ITableFontProvider, ITableColorProvider {
+	public class MyLabelProvider extends LabelProvider<MyModel> implements
+			ITableLabelProvider<MyModel>, ITableFontProvider<MyModel>,
+			ITableColorProvider<MyModel> {
 		FontRegistry registry = new FontRegistry();
 
 		@Override
-		public Image getColumnImage(Object element, int columnIndex) {
+		public Image getColumnImage(MyModel element, int columnIndex) {
 			return null;
 		}
 
 		@Override
-		public String getColumnText(Object element, int columnIndex) {
+		public String getColumnText(MyModel element, int columnIndex) {
 			return "Column " + columnIndex + " => " + element.toString();
 		}
 
 		@Override
-		public Font getFont(Object element, int columnIndex) {
-			if (((MyModel) element).counter % 2 == 0) {
+		public Font getFont(MyModel element, int columnIndex) {
+			if (element.counter % 2 == 0) {
 				return registry.getBold(Display.getCurrent().getSystemFont()
 						.getFontData()[0].getName());
 			}
@@ -125,16 +126,16 @@ public class Snippet014TreeViewerNoMandatoryLabelProvider {
 		}
 
 		@Override
-		public Color getBackground(Object element, int columnIndex) {
-			if (((MyModel) element).counter % 2 == 0) {
+		public Color getBackground(MyModel element, int columnIndex) {
+			if (element.counter % 2 == 0) {
 				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 			}
 			return null;
 		}
 
 		@Override
-		public Color getForeground(Object element, int columnIndex) {
-			if (((MyModel) element).counter % 2 == 1) {
+		public Color getForeground(MyModel element, int columnIndex) {
+			if (element.counter % 2 == 1) {
 				return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 			}
 			return null;
@@ -143,13 +144,14 @@ public class Snippet014TreeViewerNoMandatoryLabelProvider {
 	}
 
 	public Snippet014TreeViewerNoMandatoryLabelProvider(Shell shell) {
-		final TreeViewer v = new TreeViewer(shell);
+		final TreeViewer<MyModel, MyModel> v = new TreeViewer<MyModel, MyModel>(
+				shell);
 
-		TreeColumn column = new TreeColumn(v.getTree(),SWT.NONE);
+		TreeColumn column = new TreeColumn(v.getTree(), SWT.NONE);
 		column.setWidth(200);
 		column.setText("Column 1");
 
-		column = new TreeColumn(v.getTree(),SWT.NONE);
+		column = new TreeColumn(v.getTree(), SWT.NONE);
 		column.setWidth(200);
 		column.setText("Column 2");
 

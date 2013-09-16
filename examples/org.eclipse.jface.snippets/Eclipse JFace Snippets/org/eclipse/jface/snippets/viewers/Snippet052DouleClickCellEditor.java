@@ -8,6 +8,7 @@
  * Contributors:
  *     Tom Schindl - initial API and implementation
  *     Jeanderson Candido <http://jeandersonbc.github.io> - Bug 414565
+ *     Hendrik Still <hendrik.still@gammas.de> - bug 417676
  *******************************************************************************/
 
 package org.eclipse.jface.snippets.viewers;
@@ -55,9 +56,10 @@ public class Snippet052DouleClickCellEditor {
 	}
 
 	public Snippet052DouleClickCellEditor(Shell shell) {
-		final TableViewer viewer = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		final TableViewer<MyModel, List<MyModel>> viewer = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
+		viewer.setContentProvider(ArrayContentProvider
+				.getInstance(MyModel.class));
 		viewer.setCellEditors(new CellEditor[] {
 				new TextCellEditor(viewer.getTable()),
 				new TextCellEditor(viewer.getTable()),
@@ -94,12 +96,11 @@ public class Snippet052DouleClickCellEditor {
 			}
 		};
 
-		int feature = ColumnViewerEditor.TABBING_HORIZONTAL
-				| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
-				| ColumnViewerEditor.TABBING_VERTICAL
-				| ColumnViewerEditor.KEYBOARD_ACTIVATION;
-
-		TableViewerEditor.create(viewer, actSupport, feature);
+		TableViewerEditor.create(viewer, actSupport,
+				ColumnViewerEditor.TABBING_HORIZONTAL
+						| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
+						| ColumnViewerEditor.TABBING_VERTICAL
+						| ColumnViewerEditor.KEYBOARD_ACTIVATION);
 
 		String[] labels = { "Column 1", "Column 2", "Column 3" };
 		for (String label : labels) {
@@ -110,20 +111,19 @@ public class Snippet052DouleClickCellEditor {
 		viewer.getTable().setHeaderVisible(true);
 	}
 
-	private TableViewerColumn createColumnFor(final TableViewer viewer,
-			String label) {
-		TableViewerColumn column;
-		column = new TableViewerColumn(viewer, SWT.NONE);
+	private TableViewerColumn<MyModel, List<MyModel>> createColumnFor(
+			final TableViewer<MyModel, List<MyModel>> viewer, String label) {
+		TableViewerColumn<MyModel, List<MyModel>> column = new TableViewerColumn<MyModel, List<MyModel>>(
+				viewer, SWT.NONE);
 		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(true);
 		column.getColumn().setText(label);
-		column.setLabelProvider(new ColumnLabelProvider());
+		column.setLabelProvider(new ColumnLabelProvider<MyModel, List<MyModel>>());
 		return column;
 	}
 
 	private List<MyModel> createModel() {
 		List<MyModel> elements = new ArrayList<MyModel>();
-
 		for (int i = 0; i < 10; i++) {
 			elements.add(new MyModel(i));
 		}
