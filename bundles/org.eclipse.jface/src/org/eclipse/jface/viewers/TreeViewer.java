@@ -276,8 +276,8 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 	}
 
 	@Override
-	protected ColumnViewerEditor createViewerEditor() {
-		return new TreeViewerEditor(this,null,new ColumnViewerEditorActivationStrategy(this),ColumnViewerEditor.DEFAULT);
+	protected ColumnViewerEditor<E,I> createViewerEditor() {
+		return new TreeViewerEditor<E,I>(this,null,new ColumnViewerEditorActivationStrategy<E,I>(this),ColumnViewerEditor.DEFAULT);
 	}
 
 	@Override
@@ -531,11 +531,11 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 				// The current item was selected, but its data is null.
 				// The data will be replaced by the given element, so to keep
 				// it selected, we have to add it to the selection.
-				@SuppressWarnings({ "unchecked", "cast" })
-				TreePath<E>[] originalPaths = (TreePath<E>[]) selection.getPaths();
+				@SuppressWarnings({ "unchecked" })
+				TreePath<E>[] originalPaths = selection.getPaths();
 				int length = originalPaths.length;
-				@SuppressWarnings({ "unchecked", "cast" })
-				TreePath<E>[] paths = (TreePath<E>[]) new TreePath[length + 1];
+				@SuppressWarnings({ "unchecked" })
+				TreePath<E>[] paths = new TreePath[length + 1];
 				System.arraycopy(originalPaths, 0, paths, 0, length);
 				// set the element temporarily so that we can call getTreePathFromItem
 				item.setData(element);
@@ -878,16 +878,16 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 					for (@SuppressWarnings("rawtypes")
 					Iterator<TreePath> it = oldSelection.iterator(); it
 							.hasNext();) {
-						@SuppressWarnings({ "unchecked", "cast" })
-						TreePath<E> path = (TreePath<E>) it.next();
+						@SuppressWarnings({ "unchecked" })
+						TreePath<E> path = it.next();
 						if (path.startsWith(removedPath, getComparer())) {
 							it.remove();
 							removed = true;
 						}
 					}
 					if (removed) {
-						@SuppressWarnings({ "unchecked", "cast" })
-						TreePath<E>[] oldTreePathSelection = (TreePath<E>[]) oldSelection
+						@SuppressWarnings({ "unchecked" })
+						TreePath<E>[] oldTreePathSelection = oldSelection
 								.toArray(new TreePath[oldSelection.size()]);
 
 						setSelection(new TreeSelection(oldTreePathSelection,
@@ -1015,8 +1015,8 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 					}
 					treePath = getTreePathFromItem((Item) widget);
 				} else {
-					@SuppressWarnings({ "unchecked", "cast" })
-					TreePath<E> emptyTreePath = (TreePath<E>) TreePath.EMPTY;
+					@SuppressWarnings({ "unchecked" })
+					TreePath<E> emptyTreePath = TreePath.EMPTY;
 					treePath = emptyTreePath;
 				}
 				lazyTreePathContentProvider.updateElement(treePath, index);
@@ -1048,8 +1048,8 @@ public class TreeViewer<E,I> extends AbstractTreeViewer<E, I> {
 				if (widget instanceof Item) {
 					treePath = getTreePathFromItem((Item) widget);
 				} else {
-					@SuppressWarnings({ "unchecked", "cast" })
-					TreePath<E> emptyTreePath = (TreePath<E>) TreePath.EMPTY;
+					@SuppressWarnings({ "unchecked" })
+					TreePath<E> emptyTreePath = TreePath.EMPTY;
 					treePath = emptyTreePath;
 				}
 				lazyTreePathContentProvider.updateChildCount(treePath, currentChildCount);
