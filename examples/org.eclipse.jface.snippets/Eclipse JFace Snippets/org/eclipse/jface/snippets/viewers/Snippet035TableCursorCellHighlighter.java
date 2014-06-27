@@ -112,29 +112,30 @@ public class Snippet035TableCursorCellHighlighter {
 
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTable()),
 				new TextCellEditor(v.getTable()) });
-		v.setCellModifier(new ICellModifier() {
-
-			@Override
-			public boolean canModify(Object element, String property) {
-				return true;
-			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				return "Column " + property + " => " + element.toString();
-			}
+		v.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
 
 			}
 
+			@Override
+			public boolean canModify(MyModel element, String property) {
+				return true;
+			}
+
+			@Override
+			public Object getValue(MyModel element, String property) {
+				return "Column " + property + " => " + element.toString();
+			}
+
 		});
 		v.setColumnProperties(new String[] { "1", "2" });
 
-		TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(
-				v, new CursorCellHighlighter(v, new TableCursor(v)));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(
+		TableViewerFocusCellManager<MyModel, List<MyModel>> focusCellManager = new TableViewerFocusCellManager<MyModel, List<MyModel>>(
+				v, new CursorCellHighlighter<MyModel, List<MyModel>>(v,
+						new TableCursor(v)));
+		ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>> actSupport = new ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>>(
 				v) {
 			@Override
 			protected boolean isEditorActivationEvent(

@@ -62,7 +62,8 @@ public class Snippet043NoColumnTreeViewerKeyboardEditing {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				MyModel root = v.getInput();
-				TreePath path = new TreePath(new Object[] { root,
+				TreePath<MyModel> path = new TreePath<MyModel>(
+						new MyModel[] { root,
 						root.child.get(1), root.child.get(1).child.get(0) });
 				v.editElement(path, 0);
 			}
@@ -71,16 +72,16 @@ public class Snippet043NoColumnTreeViewerKeyboardEditing {
 
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTree()) });
 		v.setColumnProperties(new String[] { "col1" });
-		v.setCellModifier(new ICellModifier() {
+		v.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
-			public boolean canModify(Object element, String property) {
+			public boolean canModify(MyModel element, String property) {
 				return true;
 			}
 
 			@Override
-			public Object getValue(Object element, String property) {
-				return ((MyModel) element).counter + "";
+			public Object getValue(MyModel element, String property) {
+				return element.counter + "";
 			}
 
 			@Override
@@ -92,9 +93,9 @@ public class Snippet043NoColumnTreeViewerKeyboardEditing {
 
 		});
 
-		TreeViewerFocusCellManager focusCellManager = new TreeViewerFocusCellManager(
-				v, new FocusCellOwnerDrawHighlighter(v));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(
+		TreeViewerFocusCellManager<MyModel, MyModel> focusCellManager = new TreeViewerFocusCellManager<MyModel, MyModel>(
+				v, new FocusCellOwnerDrawHighlighter<MyModel, MyModel>(v));
+		ColumnViewerEditorActivationStrategy<MyModel, MyModel> actSupport = new ColumnViewerEditorActivationStrategy<MyModel, MyModel>(
 				v) {
 			@Override
 			protected boolean isEditorActivationEvent(

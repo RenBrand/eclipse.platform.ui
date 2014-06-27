@@ -130,23 +130,23 @@ public class Snippet038TreeViewerInlinelEditingOldAPI {
 				new TextCellEditor(viewer.getTree()) });
 
 		viewer.setColumnProperties(new String[] { "col1", "col2" });
-		viewer.setCellModifier(new ICellModifier() {
-
-			@Override
-			public boolean canModify(Object element, String property) {
-				return true;
-			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				return ((MyModel) element).counter + "";
-			}
+		viewer.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
 				((MyModel) ((TreeItem) element).getData()).counter = Integer
 						.parseInt(value.toString());
 				viewer.update((MyModel) ((TreeItem) element).getData(), null);
+			}
+
+			@Override
+			public boolean canModify(MyModel element, String property) {
+				return true;
+			}
+
+			@Override
+			public Object getValue(MyModel element, String property) {
+				return element.counter + "";
 			}
 
 		});

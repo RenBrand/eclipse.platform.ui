@@ -97,34 +97,34 @@ public class Snippet036FocusBorderCellHighlighter {
 		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
 				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.setLabelProvider(new MyLabelProvider());
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTable()),
 				new TextCellEditor(v.getTable()),
 				new TextCellEditor(v.getTable()) });
-		v.setCellModifier(new ICellModifier() {
-
-			@Override
-			public boolean canModify(Object element, String property) {
-				return true;
-			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				return "Column " + property + " => " + element.toString();
-			}
+		v.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
 
 			}
 
+			@Override
+			public boolean canModify(MyModel element, String property) {
+				return true;
+			}
+
+			@Override
+			public Object getValue(MyModel element, String property) {
+				return "Column " + property + " => " + element.toString();
+			}
+
 		});
 		v.setColumnProperties(new String[] { "1", "2", "3" });
 
-		TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(
-				v, new FocusBorderCellHighlighter(v));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(
+		TableViewerFocusCellManager<MyModel, List<MyModel>> focusCellManager = new TableViewerFocusCellManager<MyModel, List<MyModel>>(
+				v, new FocusBorderCellHighlighter<MyModel, List<MyModel>>(v));
+		ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>> actSupport = new ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>>(
 				v) {
 			@Override
 			protected boolean isEditorActivationEvent(
@@ -151,7 +151,8 @@ public class Snippet036FocusBorderCellHighlighter {
 		v.getTable().setHeaderVisible(true);
 	}
 
-	private void createColumnFor(TableViewer v, String label) {
+	private void createColumnFor(TableViewer<MyModel, List<MyModel>> v,
+			String label) {
 		TableColumn column = new TableColumn(v.getTable(), SWT.NONE);
 		column.setWidth(200);
 		column.setMoveable(true);

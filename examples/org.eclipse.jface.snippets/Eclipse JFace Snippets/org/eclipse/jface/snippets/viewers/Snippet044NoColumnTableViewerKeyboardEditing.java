@@ -101,15 +101,15 @@ public class Snippet044NoColumnTableViewerKeyboardEditing {
 		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
 
 		v.setCellEditors(new CellEditor[] { new TextCellEditor(v.getTable()) });
-		v.setCellModifier(new ICellModifier() {
+		v.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
-			public boolean canModify(Object element, String property) {
+			public boolean canModify(MyModel element, String property) {
 				return true;
 			}
 
 			@Override
-			public Object getValue(Object element, String property) {
+			public Object getValue(MyModel element, String property) {
 				return "Column " + property + " => " + element.toString();
 			}
 
@@ -122,9 +122,9 @@ public class Snippet044NoColumnTableViewerKeyboardEditing {
 
 		v.setColumnProperties(new String[] { "1" });
 
-		TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(
-				v, new FocusBorderCellHighlighter(v));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(
+		TableViewerFocusCellManager<MyModel, List<MyModel>> focusCellManager = new TableViewerFocusCellManager<MyModel, List<MyModel>>(
+				v, new FocusBorderCellHighlighter<MyModel, List<MyModel>>(v));
+		ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>> actSupport = new ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>>(
 				v) {
 			@Override
 			protected boolean isEditorActivationEvent(

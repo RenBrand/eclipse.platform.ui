@@ -40,7 +40,8 @@ import org.eclipse.swt.widgets.Table;
  *
  */
 public class Snippet034CellEditorPerRow {
-	private class MyEditingSupport extends EditingSupport {
+	private class MyEditingSupport extends
+			EditingSupport<MyModel, List<MyModel>> {
 		private CellEditor textEditor;
 
 		private CellEditor dropDownEditor;
@@ -58,12 +59,7 @@ public class Snippet034CellEditorPerRow {
 		}
 
 		@Override
-		protected boolean canEdit(Object element) {
-			return ((MyModel) element).counter % 2 == 0;
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
+		protected CellEditor getCellEditor(MyModel element) {
 			if (element instanceof MyModel2) {
 				return dropDownEditor;
 			} else {
@@ -72,17 +68,22 @@ public class Snippet034CellEditorPerRow {
 		}
 
 		@Override
-		protected Object getValue(Object element) {
+		protected boolean canEdit(MyModel element) {
+			return element.counter % 2 == 0;
+		}
+
+		@Override
+		protected Object getValue(MyModel element) {
 			if (element instanceof MyModel2) {
-				return new Integer(((MyModel) element).counter);
+				return new Integer(element.counter);
 			} else {
-				return ((MyModel) element).counter + "";
+				return element.counter + "";
 			}
 		}
 
 		@Override
-		protected void setValue(Object element, Object value) {
-			((MyModel) element).counter = Integer.parseInt(value.toString());
+		protected void setValue(MyModel element, Object value) {
+			element.counter = Integer.parseInt(value.toString());
 			getViewer().update(element, null);
 		}
 

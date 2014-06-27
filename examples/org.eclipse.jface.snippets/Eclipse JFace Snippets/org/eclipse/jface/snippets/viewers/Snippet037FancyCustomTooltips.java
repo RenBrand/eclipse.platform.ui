@@ -43,7 +43,8 @@ public class Snippet037FancyCustomTooltips {
 	private static class FancyToolTipSupport extends
 			ColumnViewerToolTipSupport<String, Object> {
 
-		protected FancyToolTipSupport(ColumnViewer viewer, int style,
+		protected FancyToolTipSupport(ColumnViewer<String, Object> viewer,
+				int style,
 				boolean manualActivation) {
 			super(viewer, style, manualActivation);
 		}
@@ -71,7 +72,8 @@ public class Snippet037FancyCustomTooltips {
 			return false;
 		}
 
-		public static final void enableFor(ColumnViewer viewer, int style) {
+		public static final void enableFor(ColumnViewer<String, Object> viewer,
+				int style) {
 			new FancyToolTipSupport(viewer, style, false);
 		}
 	}
@@ -84,13 +86,14 @@ public class Snippet037FancyCustomTooltips {
 		Shell shell = new Shell(display);
 		shell.setLayout(new FillLayout());
 
-		TableViewer v = new TableViewer(shell, SWT.FULL_SELECTION);
+		TableViewer<String, Object> v = new TableViewer<String, Object>(shell,
+				SWT.FULL_SELECTION);
 		v.getTable().setLinesVisible(true);
 		v.getTable().setHeaderVisible(true);
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setContentProvider(ArrayContentProvider.getInstance(String.class));
 		FancyToolTipSupport.enableFor(v, ToolTip.NO_RECREATE);
 
-		CellLabelProvider labelProvider = new CellLabelProvider() {
+		CellLabelProvider<String, Object> labelProvider = new CellLabelProvider<String, Object>() {
 
 			@Override
 			public String getToolTipText(Object element) {
@@ -100,27 +103,28 @@ public class Snippet037FancyCustomTooltips {
 			}
 
 			@Override
-			public Point getToolTipShift(Object object) {
+			public Point getToolTipShift(String object) {
 				return new Point(5, 5);
 			}
 
 			@Override
-			public int getToolTipDisplayDelayTime(Object object) {
+			public int getToolTipDisplayDelayTime(String object) {
 				return 2000;
 			}
 
 			@Override
-			public int getToolTipTimeDisplayed(Object object) {
+			public int getToolTipTimeDisplayed(String object) {
 				return 5000;
 			}
 
 			@Override
-			public void update(ViewerCell cell) {
+			public void update(ViewerCell<String> cell) {
 				cell.setText(cell.getElement().toString());
 			}
 		};
 
-		TableViewerColumn column = new TableViewerColumn(v, SWT.NONE);
+		TableViewerColumn<String, Object> column = new TableViewerColumn<String, Object>(
+				v, SWT.NONE);
 		column.setLabelProvider(labelProvider);
 		column.getColumn().setText("Column 1");
 		column.getColumn().setWidth(100);
