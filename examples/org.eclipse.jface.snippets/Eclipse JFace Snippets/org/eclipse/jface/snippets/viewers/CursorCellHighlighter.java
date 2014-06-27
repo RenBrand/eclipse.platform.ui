@@ -19,14 +19,14 @@ import org.eclipse.jface.viewers.ColumnViewerEditorDeactivationEvent;
 import org.eclipse.jface.viewers.FocusCellHighlighter;
 import org.eclipse.jface.viewers.ViewerCell;
 
-
-
 /**
+ * @param <E>
+ * @param <I>
  * @since 3.3
  *
  */
-public class CursorCellHighlighter extends FocusCellHighlighter {
-	private ColumnViewer viewer;
+public class CursorCellHighlighter<E, I> extends FocusCellHighlighter<E, I> {
+	private ColumnViewer<E, I> viewer;
 
 	private AbstractCellCursor cursor;
 
@@ -34,7 +34,7 @@ public class CursorCellHighlighter extends FocusCellHighlighter {
 	 * @param viewer
 	 * @param cursor
 	 */
-	public CursorCellHighlighter(ColumnViewer viewer,
+	public CursorCellHighlighter(ColumnViewer<E, I> viewer,
 			AbstractCellCursor cursor) {
 		super(viewer);
 		this.viewer = viewer;
@@ -42,11 +42,11 @@ public class CursorCellHighlighter extends FocusCellHighlighter {
 	}
 
 	@Override
-	protected void focusCellChanged(ViewerCell cell) {
+	protected void focusCellChanged(ViewerCell<E> cell) {
 		super.focusCellChanged(cell);
-		if( ! viewer.isCellEditorActive() ) {
+		if (!viewer.isCellEditorActive()) {
 			System.err.println("SHOW EDITOR"); //$NON-NLS-1$
-			cursor.setSelection(cell, 0); //TODO THE TIME
+			cursor.setSelection(cell, 0); // TODO THE TIME
 			cursor.setVisible(true);
 		}
 	}
@@ -69,7 +69,7 @@ public class CursorCellHighlighter extends FocusCellHighlighter {
 			public void afterEditorDeactivated(
 					ColumnViewerEditorDeactivationEvent event) {
 				cursor.setVisible(true);
-				cursor.setSelection(getFocusCell(), 0); //TODO THE TIME
+				cursor.setSelection(getFocusCell(), 0); // TODO THE TIME
 			}
 
 			@Override

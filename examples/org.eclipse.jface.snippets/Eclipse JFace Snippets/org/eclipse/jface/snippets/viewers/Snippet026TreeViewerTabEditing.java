@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 public class Snippet026TreeViewerTabEditing {
 	public Snippet026TreeViewerTabEditing(final Shell shell) {
 		Button b = new Button(shell, SWT.PUSH);
-		b.setText("Remove column");
+		b.setText("Remove the second column");
 		final TreeViewer<MyModel, MyModel> v = new TreeViewer<MyModel, MyModel>(
 				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.getTree().setLinesVisible(true);
@@ -61,14 +61,16 @@ public class Snippet026TreeViewerTabEditing {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				v.getTree().getColumn(1).dispose();
+				int columnCount = v.getTree().getColumnCount();
+				if (columnCount > 1)
+					v.getTree().getColumn(1).dispose();
 			}
 
 		});
 
-		TreeViewerFocusCellManager focusCellManager = new TreeViewerFocusCellManager(
-				v, new FocusCellOwnerDrawHighlighter(v));
-		ColumnViewerEditorActivationStrategy actSupport = new ColumnViewerEditorActivationStrategy(
+		TreeViewerFocusCellManager<MyModel, MyModel> focusCellManager = new TreeViewerFocusCellManager<MyModel, MyModel>(
+				v, new FocusCellOwnerDrawHighlighter<MyModel, MyModel>(v));
+		ColumnViewerEditorActivationStrategy<MyModel, MyModel> actSupport = new ColumnViewerEditorActivationStrategy<MyModel, MyModel>(
 				v) {
 			@Override
 			protected boolean isEditorActivationEvent(
@@ -116,27 +118,29 @@ public class Snippet026TreeViewerTabEditing {
 		};
 	}
 
-	private EditingSupport createEditingSupportFor(final TreeViewer viewer,
+	private EditingSupport<MyModel, MyModel> createEditingSupportFor(
+			final TreeViewer<MyModel, MyModel> viewer,
 			final TextCellEditor textCellEditor) {
-		return new EditingSupport(viewer) {
-			@Override
-			protected boolean canEdit(Object element) {
-				return false;
-			}
+		return new EditingSupport<MyModel, MyModel>(viewer) {
 
 			@Override
-			protected CellEditor getCellEditor(Object element) {
+			protected CellEditor getCellEditor(MyModel element) {
 				return textCellEditor;
 			}
 
 			@Override
-			protected Object getValue(Object element) {
-				return ((MyModel) element).counter + "";
+			protected boolean canEdit(MyModel element) {
+				return false;
 			}
 
 			@Override
-			protected void setValue(Object element, Object value) {
-				((MyModel) element).counter = Integer
+			protected Object getValue(MyModel element) {
+				return element.counter + "";
+			}
+
+			@Override
+			protected void setValue(MyModel element, Object value) {
+				element.counter = Integer
 						.parseInt(value.toString());
 				viewer.update(element, null);
 				viewer.update(element, null);

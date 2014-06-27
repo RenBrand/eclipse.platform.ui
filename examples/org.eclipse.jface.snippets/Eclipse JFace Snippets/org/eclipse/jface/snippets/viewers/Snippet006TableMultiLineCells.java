@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.jface.snippets.viewers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
@@ -30,7 +34,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 
 public class Snippet006TableMultiLineCells {
-
 
 	class LineEntry {
 
@@ -67,12 +70,12 @@ public class Snippet006TableMultiLineCells {
 		}
 	}
 
-	private TableViewer viewer;
+	private TableViewer<LineEntry, List<LineEntry>> viewer;
 
-	private LineEntry[] entries;
+	private List<LineEntry> entries;
 
 	public Snippet006TableMultiLineCells() {
-		String[] lines = new String[] {
+		List<String> lines = Arrays.asList(
 				"This day is called the feast of Crispian:",
 				"He that outlives this day, \n and comes safe home,",
 				"Will stand a tip-toe when the day is named,",
@@ -100,36 +103,37 @@ public class Snippet006TableMultiLineCells {
 				"And gentlemen in England now a-bed",
 				"Shall think themselves accursed they were not here,",
 				"And hold their manhoods cheap whiles any speaks",
-				"That fought with us upon Saint Crispin's day." };
+				"That fought with us upon Saint Crispin's day.");
 
-		entries = new LineEntry[lines.length];
-		for (int i = 0; i < lines.length; i++) {
-			entries[i] = new LineEntry(lines[i], 35);
+		entries = new ArrayList<LineEntry>();
+		for (String line : lines) {
+			entries.add(new LineEntry(line, 35));
 		}
 	}
 
 	public void createPartControl(Composite parent) {
-		viewer = new TableViewer(parent, SWT.FULL_SELECTION);
+		viewer = new TableViewer<LineEntry, List<LineEntry>>(parent,
+				SWT.FULL_SELECTION);
 
-		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		viewer.setContentProvider(ArrayContentProvider
+				.getInstance(LineEntry.class));
 		createColumns();
 
-		viewer.setLabelProvider(new OwnerDrawLabelProvider() {
+		viewer.setLabelProvider(new OwnerDrawLabelProvider<LineEntry, List<LineEntry>>() {
 
 			@Override
-			protected void measure(Event event, Object element) {
-				LineEntry line = (LineEntry) element;
+			protected void measure(Event event, LineEntry element) {
+				LineEntry line = element;
 				Point size = event.gc.textExtent(line.line);
-				event.width = viewer.getTable().getColumn(event.index).getWidth();
+				event.width = viewer.getTable().getColumn(event.index)
+						.getWidth();
 				int lines = size.x / event.width + 1;
 				event.height = size.y * lines;
-
 			}
 
 			@Override
-			protected void paint(Event event, Object element) {
-
-				LineEntry entry = (LineEntry) element;
+			protected void paint(Event event, LineEntry element) {
+				LineEntry entry = element;
 				event.gc.drawText(entry.line, event.x, event.y, true);
 			}
 		});
@@ -140,7 +144,7 @@ public class Snippet006TableMultiLineCells {
 
 		viewer.getControl().setLayoutData(data);
 
-		viewer.setSelection(new StructuredSelection(entries[1]));
+		viewer.setSelection(new StructuredSelection(entries.get(1)));
 	}
 
 	/**
@@ -176,6 +180,5 @@ public class Snippet006TableMultiLineCells {
 		}
 		display.dispose();
 	}
-
 
 }

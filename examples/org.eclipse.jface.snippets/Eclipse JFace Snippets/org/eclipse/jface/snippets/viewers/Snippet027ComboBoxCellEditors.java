@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.TableItem;
  *
  */
 public class Snippet027ComboBoxCellEditors {
-	private class MyCellModifier implements ICellModifier {
+	private class MyCellModifier implements ICellModifier<MyModel> {
 
 		private TableViewer<MyModel, List<MyModel>> viewer;
 
@@ -47,22 +47,21 @@ public class Snippet027ComboBoxCellEditors {
 		}
 
 		@Override
-		public boolean canModify(Object element, String property) {
-			return true;
-		}
-
-		@Override
-		public Object getValue(Object element, String property) {
-			// We need to calculate back to the index
-			return new Integer(((MyModel) element).counter / 10);
-		}
-
-		@Override
 		public void modify(Object element, String property, Object value) {
 			TableItem item = (TableItem) element;
 			// We get the index and need to calculate the real value
 			((MyModel) item.getData()).counter = ((Integer) value).intValue() * 10;
 			viewer.update((MyModel) item.getData(), null);
+		}
+
+		@Override
+		public boolean canModify(MyModel element, String property) {
+			return true;
+		}
+
+		@Override
+		public Object getValue(MyModel element, String property) {
+			return new Integer(element.counter / 10);
 		}
 	}
 

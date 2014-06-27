@@ -65,7 +65,7 @@ public class Snippet019TableViewerAddRemoveColumnsWithEditingNewAPI {
 		}
 	}
 
-	private class GivenNameEditing extends EditingSupport {
+	private class GivenNameEditing extends EditingSupport<Person, List<Person>> {
 		private TextCellEditor cellEditor;
 
 		public GivenNameEditing(TableViewer<Person, List<Person>> viewer) {
@@ -74,24 +74,25 @@ public class Snippet019TableViewerAddRemoveColumnsWithEditingNewAPI {
 		}
 
 		@Override
-		protected boolean canEdit(Object element) {
-			return true;
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
+		protected CellEditor getCellEditor(Person element) {
 			return cellEditor;
 		}
 
 		@Override
-		protected Object getValue(Object element) {
-			return ((Person) element).givenname;
+		protected boolean canEdit(Person element) {
+			return true;
 		}
 
 		@Override
-		protected void setValue(Object element, Object value) {
-			((Person) element).givenname = value.toString();
+		protected Object getValue(Person element) {
+			return element.givenname;
+		}
+
+		@Override
+		protected void setValue(Person element, Object value) {
+			element.givenname = value.toString();
 			getViewer().update(element, null);
+
 		}
 	}
 
@@ -103,7 +104,7 @@ public class Snippet019TableViewerAddRemoveColumnsWithEditingNewAPI {
 		}
 	}
 
-	private class SurNameEditing extends EditingSupport {
+	private class SurNameEditing extends EditingSupport<Person, List<Person>> {
 		private TextCellEditor cellEditor;
 
 		public SurNameEditing(TableViewer<Person, List<Person>> viewer) {
@@ -112,23 +113,23 @@ public class Snippet019TableViewerAddRemoveColumnsWithEditingNewAPI {
 		}
 
 		@Override
-		protected boolean canEdit(Object element) {
-			return true;
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
+		protected CellEditor getCellEditor(Person element) {
 			return cellEditor;
 		}
 
 		@Override
-		protected Object getValue(Object element) {
-			return ((Person) element).surname;
+		protected boolean canEdit(Person element) {
+			return true;
 		}
 
 		@Override
-		protected void setValue(Object element, Object value) {
-			((Person) element).surname = value.toString();
+		protected Object getValue(Person element) {
+			return element.surname;
+		}
+
+		@Override
+		protected void setValue(Person element, Object value) {
+			element.surname = value.toString();
 			getViewer().update(element, null);
 		}
 	}
@@ -141,7 +142,7 @@ public class Snippet019TableViewerAddRemoveColumnsWithEditingNewAPI {
 		}
 	}
 
-	private class EmailEditing extends EditingSupport {
+	private class EmailEditing extends EditingSupport<Person, List<Person>> {
 		private TextCellEditor cellEditor;
 
 		public EmailEditing(TableViewer<Person, List<Person>> viewer) {
@@ -150,24 +151,25 @@ public class Snippet019TableViewerAddRemoveColumnsWithEditingNewAPI {
 		}
 
 		@Override
-		protected boolean canEdit(Object element) {
-			return true;
-		}
-
-		@Override
-		protected CellEditor getCellEditor(Object element) {
+		protected CellEditor getCellEditor(Person element) {
 			return cellEditor;
 		}
 
 		@Override
-		protected Object getValue(Object element) {
-			return ((Person) element).email;
+		protected boolean canEdit(Person element) {
+			return true;
 		}
 
 		@Override
-		protected void setValue(Object element, Object value) {
-			((Person) element).email = value.toString();
+		protected Object getValue(Person element) {
+			return element.email;
+		}
+
+		@Override
+		protected void setValue(Person element, Object value) {
+			element.email = value.toString();
 			getViewer().update(element, null);
+
 		}
 	}
 

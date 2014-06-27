@@ -49,26 +49,27 @@ public class Snippet024TableViewerExploreNewAPI {
 
 	}
 
-	protected abstract class AbstractEditingSupport extends EditingSupport {
+	protected abstract class AbstractEditingSupport extends
+			EditingSupport<Person, List<Person>> {
 		private TextCellEditor editor;
 
-		public AbstractEditingSupport(TableViewer viewer) {
+		public AbstractEditingSupport(TableViewer<Person, List<Person>> viewer) {
 			super(viewer);
 			this.editor = new TextCellEditor(viewer.getTable());
 		}
 
 		@Override
-		protected boolean canEdit(Object element) {
+		protected boolean canEdit(Person element) {
 			return true;
 		}
 
 		@Override
-		protected CellEditor getCellEditor(Object element) {
+		protected CellEditor getCellEditor(Person element) {
 			return editor;
 		}
 
 		@Override
-		protected void setValue(Object element, Object value) {
+		protected void setValue(Person element, Object value) {
 			doSetValue(element, value);
 			getViewer().update(element, null);
 		}
@@ -79,7 +80,7 @@ public class Snippet024TableViewerExploreNewAPI {
 	public Snippet024TableViewerExploreNewAPI(Shell shell) {
 		TableViewer<Person, List<Person>> v = new TableViewer<Person, List<Person>>(
 				shell, SWT.BORDER | SWT.FULL_SELECTION);
-		v.setContentProvider(ArrayContentProvider.getInstance());
+		v.setContentProvider(ArrayContentProvider.getInstance(Person.class));
 
 		TableViewerColumn<Person, List<Person>> column = createColumnFor(v,
 				"Givenname");
@@ -94,13 +95,13 @@ public class Snippet024TableViewerExploreNewAPI {
 		column.setEditingSupport(new AbstractEditingSupport(v) {
 
 			@Override
-			protected Object getValue(Object element) {
-				return ((Person) element).givenname;
+			protected void doSetValue(Object element, Object value) {
+				((Person) element).givenname = value.toString();
 			}
 
 			@Override
-			protected void doSetValue(Object element, Object value) {
-				((Person) element).givenname = value.toString();
+			protected Object getValue(Person element) {
+				return element.givenname;
 			}
 
 		});
@@ -118,13 +119,13 @@ public class Snippet024TableViewerExploreNewAPI {
 		column.setEditingSupport(new AbstractEditingSupport(v) {
 
 			@Override
-			protected Object getValue(Object element) {
-				return ((Person) element).surname;
+			protected void doSetValue(Object element, Object value) {
+				((Person) element).surname = value.toString();
 			}
 
 			@Override
-			protected void doSetValue(Object element, Object value) {
-				((Person) element).surname = value.toString();
+			protected Object getValue(Person element) {
+				return element.surname;
 			}
 
 		});
@@ -142,13 +143,13 @@ public class Snippet024TableViewerExploreNewAPI {
 		column.setEditingSupport(new AbstractEditingSupport(v) {
 
 			@Override
-			protected Object getValue(Object element) {
-				return ((Person) element).email;
+			protected void doSetValue(Object element, Object value) {
+				((Person) element).email = value.toString();
 			}
 
 			@Override
-			protected void doSetValue(Object element, Object value) {
-				((Person) element).email = value.toString();
+			protected Object getValue(Person element) {
+				return element.email;
 			}
 
 		});

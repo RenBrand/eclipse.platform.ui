@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.Listener;
  */
 public abstract class AbstractCellCursor extends Canvas {
 
-	private ViewerCell[] cells = new ViewerCell[0];
-	private ColumnViewer viewer;
+	private ViewerCell<?>[] cells = new ViewerCell[0];
+	private ColumnViewer<?, ?> viewer;
 	private int activationTime = 0;
 	private boolean inFocusRequest = false;
 
@@ -40,7 +40,7 @@ public abstract class AbstractCellCursor extends Canvas {
 	 * @param viewer
 	 * @param style
 	 */
-	public AbstractCellCursor(ColumnViewer viewer, int style) {
+	public AbstractCellCursor(ColumnViewer<?, ?> viewer, int style) {
 		super((Composite) viewer.getControl(), style);
 		this.viewer = viewer;
 
@@ -67,7 +67,7 @@ public abstract class AbstractCellCursor extends Canvas {
 				case SWT.KeyDown:
 					getParent().notifyListeners(SWT.KeyDown, event);
 					ArrayList<Object> list = new ArrayList<Object>();
-					for (ViewerCell cell : cells) {
+					for (ViewerCell<?> cell : cells) {
 						list.add(cell.getElement());
 					}
 					AbstractCellCursor.this.viewer
@@ -111,7 +111,7 @@ public abstract class AbstractCellCursor extends Canvas {
 	 * @param cell
 	 * @param eventTime
 	 */
-	public void setSelection(ViewerCell cell, int eventTime) {
+	public void setSelection(ViewerCell<?> cell, int eventTime) {
 		this.cells = new ViewerCell[] { cell };
 		setBounds(cell.getBounds());
 		forceFocus();
@@ -122,7 +122,7 @@ public abstract class AbstractCellCursor extends Canvas {
 	/**
 	 * @return the cells who should be highlighted
 	 */
-	protected ViewerCell[] getSelectedCells() {
+	protected ViewerCell<?>[] getSelectedCells() {
 		return cells;
 	}
 

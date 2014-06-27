@@ -54,33 +54,33 @@ public class Snippet025TabEditing {
 	}
 
 	public Snippet025TabEditing(Shell shell) {
-		final TableViewer viewer = new TableViewer(shell, SWT.BORDER
-				| SWT.FULL_SELECTION);
+		final TableViewer<MyModel, List<MyModel>> viewer = new TableViewer<MyModel, List<MyModel>>(
+				shell, SWT.BORDER | SWT.FULL_SELECTION);
 
 		createColumnFor(viewer, "Column 1", 100);
 		createColumnFor(viewer, "Column 2", 200);
 
-		viewer.setLabelProvider(new LabelProvider());
+		viewer.setLabelProvider(new LabelProvider<MyModel>());
 		viewer.setContentProvider(ArrayContentProvider
 				.getInstance(MyModel.class));
-		viewer.setCellModifier(new ICellModifier() {
-
-			@Override
-			public boolean canModify(Object element, String property) {
-				return ((MyModel) element).counter % 2 == 0;
-			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				return ((MyModel) element).counter + "";
-			}
+		viewer.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
 				TableItem item = (TableItem) element;
 				((MyModel) item.getData()).counter = Integer.parseInt(value
 						.toString());
-				viewer.update(item.getData(), null);
+				viewer.update((MyModel) item.getData(), null);
+			}
+
+			@Override
+			public boolean canModify(MyModel element, String property) {
+				return element.counter % 2 == 0;
+			}
+
+			@Override
+			public Object getValue(MyModel element, String property) {
+				return element.counter + "";
 			}
 
 		});
@@ -90,17 +90,20 @@ public class Snippet025TabEditing {
 				new TextCellEditor(viewer.getTable()),
 				new TextCellEditor(viewer.getTable()) });
 
-		TableViewerEditor.create(viewer,
-				new ColumnViewerEditorActivationStrategy(viewer),
-				ColumnViewerEditor.TABBING_HORIZONTAL
-						| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
-						| ColumnViewerEditor.TABBING_VERTICAL);
+		TableViewerEditor
+				.create(viewer,
+						new ColumnViewerEditorActivationStrategy<MyModel, List<MyModel>>(
+								viewer),
+						ColumnViewerEditor.TABBING_HORIZONTAL
+								| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR
+								| ColumnViewerEditor.TABBING_VERTICAL);
 
 		viewer.setInput(createModel());
 		viewer.getTable().setLinesVisible(true);
 	}
 
-	private void createColumnFor(TableViewer viewer, String label, int width) {
+	private void createColumnFor(TableViewer<MyModel, List<MyModel>> viewer,
+			String label, int width) {
 		TableColumn tc = new TableColumn(viewer.getTable(), SWT.NONE);
 		tc.setWidth(width);
 		tc.setText(label);

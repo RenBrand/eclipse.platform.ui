@@ -103,28 +103,28 @@ public class Snippet018TableViewerAddRemoveColumnsWithEditing {
 		}
 	}
 
-	public class MyCellModifier implements ICellModifier {
-		private TableViewer viewer;
+	public class MyCellModifier implements ICellModifier<Person> {
+		private TableViewer<Person, List<Person>> viewer;
 
-		public MyCellModifier(TableViewer viewer) {
+		public MyCellModifier(TableViewer<Person, List<Person>> viewer) {
 			this.viewer = viewer;
-		}
-
-		@Override
-		public boolean canModify(Object element, String property) {
-			return true;
-		}
-
-		@Override
-		public Object getValue(Object element, String property) {
-			return ((Person) element).getValue(property);
 		}
 
 		@Override
 		public void modify(Object element, String property, Object value) {
 			((Person) ((Item) element).getData()).setValue(property,
 					value.toString());
-			viewer.update(((Item) element).getData(), null);
+			viewer.update((Person) ((Item) element).getData(), null);
+		}
+
+		@Override
+		public boolean canModify(Person element, String property) {
+			return true;
+		}
+
+		@Override
+		public Object getValue(Person element, String property) {
+			return element.getValue(property);
 		}
 
 	}

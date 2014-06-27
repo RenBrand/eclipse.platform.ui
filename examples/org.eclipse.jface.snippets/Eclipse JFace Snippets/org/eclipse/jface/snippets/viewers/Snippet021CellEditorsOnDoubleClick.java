@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.TableItem;
  *
  */
 public class Snippet021CellEditorsOnDoubleClick {
-	private class MyCellModifier implements ICellModifier {
+	private class MyCellModifier implements ICellModifier<MyModel> {
 
 		private TableViewer<MyModel, List<MyModel>> viewer;
 
@@ -55,21 +55,21 @@ public class Snippet021CellEditorsOnDoubleClick {
 		}
 
 		@Override
-		public boolean canModify(Object element, String property) {
-			return enabled && ((MyModel) element).counter % 2 == 0;
-		}
-
-		@Override
-		public Object getValue(Object element, String property) {
-			return ((MyModel) element).counter + "";
-		}
-
-		@Override
 		public void modify(Object element, String property, Object value) {
 			TableItem item = (TableItem) element;
 			((MyModel) item.getData()).counter = Integer.parseInt(value
 					.toString());
 			viewer.update((MyModel) item.getData(), null);
+		}
+
+		@Override
+		public boolean canModify(MyModel element, String property) {
+			return enabled && element.counter % 2 == 0;
+		}
+
+		@Override
+		public Object getValue(MyModel element, String property) {
+			return element.counter + "";
 		}
 	}
 

@@ -149,7 +149,7 @@ public class Snippet017TableViewerHideShowColumns {
 		addMenu(v);
 	}
 
-	private void addMenu(TableViewer v) {
+	private void addMenu(TableViewer<MyModel, List<MyModel>> v) {
 		final MenuManager mgr = new MenuManager();
 		Action action;
 

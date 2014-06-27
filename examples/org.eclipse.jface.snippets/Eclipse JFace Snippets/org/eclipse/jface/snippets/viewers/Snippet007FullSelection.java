@@ -54,18 +54,8 @@ public class Snippet007FullSelection {
 		final TableViewer<MyModel, List<MyModel>> v = new TableViewer<MyModel, List<MyModel>>(
 				shell, SWT.BORDER | SWT.FULL_SELECTION);
 		v.setLabelProvider(new LabelProvider<MyModel>());
-		v.setContentProvider(ArrayContentProvider.getInstance());
-		v.setCellModifier(new ICellModifier() {
-
-			@Override
-			public boolean canModify(Object element, String property) {
-				return true;
-			}
-
-			@Override
-			public Object getValue(Object element, String property) {
-				return ((MyModel) element).counter + "";
-			}
+		v.setContentProvider(ArrayContentProvider.getInstance(MyModel.class));
+		v.setCellModifier(new ICellModifier<MyModel>() {
 
 			@Override
 			public void modify(Object element, String property, Object value) {
@@ -73,6 +63,16 @@ public class Snippet007FullSelection {
 				((MyModel) item.getData()).counter = Integer.parseInt(value
 						.toString());
 				v.update((MyModel) item.getData(), null);
+			}
+
+			@Override
+			public boolean canModify(MyModel element, String property) {
+				return true;
+			}
+
+			@Override
+			public Object getValue(MyModel element, String property) {
+				return element.counter + "";
 			}
 
 		});
