@@ -30,7 +30,7 @@ import org.eclipse.swt.graphics.Point;
  * @since 3.3
  * @see ColumnLabelProvider as a concrete implementation
  */
-public abstract class CellLabelProvider<E> extends BaseLabelProvider<E> implements IToolTipProvider {
+public abstract class CellLabelProvider<E> extends BaseLabelProvider<E> implements IToolTipProvider<E> {
 
 	/**
 	 * Create a new instance of the receiver.

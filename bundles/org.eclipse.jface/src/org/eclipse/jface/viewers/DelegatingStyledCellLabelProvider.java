@@ -185,9 +185,9 @@ public class DelegatingStyledCellLabelProvider<E> extends StyledCellLabelProvide
 	}
 
 	@Override
-	public String getToolTipText(Object element) {
+  public String getToolTipText(E element) {
 		if (styledLabelProvider instanceof IToolTipProvider) {
-			return ((IToolTipProvider) this.styledLabelProvider).getToolTipText(element);
+      return ((IToolTipProvider<E>) this.styledLabelProvider).getToolTipText(element);
 		}
 		return super.getToolTipText(element);
 	}
